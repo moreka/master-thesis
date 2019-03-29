@@ -1,0 +1,365 @@
+\chapter{Preliminaries}
+Here we bring the preliminaries to this work, including some remarks about online learning, Poisson processes, and submodularity.
+
+\section{Online Learning}
+Many prediction problems can be represented as repeated games between a forecaster and the environment \citep{cesa2006prediction}, or a player and an adversary. In this representation, at round $t$, the player has to choose a strategy $x_t$ from a set of possible strategies $\Xcal$, and will incur the loss $f_t(x_t)$ from the adversary. This loss can be thought of as the `prediction error', which is defined naturally based on the environment, or some hand-crafted function depending on $x_t$, that the adversary imposes on the player. 
+
+There could be randomness involved in the player's strategy, as well as the adversary. For example, one setting is that the adversary knows the distribution on $\Xcal$ which the player is going to sample her strategy, but does not know the sample before choosing his loss. Another example would be the case that the adversary samples losses from a fixed distribution, unknown to the player, but not dependent on player's strategy.
+Depending on the randomness and the adversary's knowledge, some settings are closer to the situation of game playing, and some settings are closer to that of learning. We will go through the main results about game theoretic understanding of online learning in a later chapter. In this work, we only focus on the setting where the player is faced with an adversary, and her actions are deterministic.
+
+To measure the performance of the player, one needs to introduce a baseline. A seemingly easy notion is that of \emph{regret}, which one compares the accumulated loss up to round $T$ with the least possible loss in hindsight, following the best fixed strategy, that is,
+\begin{equation}\label{eq:regretdef}
+    R(T) = \sum_{t=1}^T f_t(x_t) - \min_{x^\star \in \Xcal} \sum_{t=1}^T f_t(x^\star).
+\end{equation}
+Notice that, in general, the player cannot compute the regret, as she needs access to all functions $f_1, \ldots, f_T$. But what one can do is to provide algorithms that provably get low regrets. Moreover, one may ask for more sophisticated baselines, rather than the ones playing with a fixed strategy. It turns out that even for this simple baseline, providing algorithms achieving low regret is nontrivial.
+
+One accepted notion of `low regret' is that of Hannan Consistency, that is, 
+\[
+    \limsup_{T\to\infty} \frac{R(T)}{T} \leq 0, \quad \text{a.s.},
+\]
+where the probability space is defined for the random decisions of the player (and/or the adversary). In deterministic setting, we can write the condition as $R(T) = o(T)$ as $T\to\infty$. In the online learning community, it is customary to call a Hannan consistent algorithm, a \emph{no-regret} algorithm.
+
+\subsection{Online Convex Optimisation}
+One of the vastly studied settings in the online learning community is the convex setting, also called `Online Convex Optimisation'. In this setting, one assumes that $\Xcal$ is a compact convex subset of $\mathbb{R}^d$, and loss functions are convex. 
+
+Let us put a norm $\|\cdot\|$ on $\RR^d$, and let $\|\cdot\|_\star$ denote its dual norm, \ie
+\[
+    \|x\|_\star = \sup \{ z^\top x : \|z\| \leq 1 \}.
+\]
+We denote by $C^1_{L}(\Xcal)$ the set of real-valued continuously differentiable functions defined over $\Xcal$ that are Lipschitz continuous with constant~$L$, \ie, $\|\nabla f(x)\|_\star \leq L$ for all $x\in \Xcal$. This is equivalent to say that for all $x, y\in \Xcal$, we have
+\[
+    |f(x) - f(y)| \leq L\cdot\|x-y\|.
+\]
+
+
+Also, let $\projon{\Xcal}{z}$ be the unique orthogonal projection of $z$ onto the convex set $\Xcal$. If $\Xcal$ is clear from the context, we drop it and write $\proj{z}$ instead.
+
+If the gradient of $f_t$ is revealed to the player at the end of round $t$, then sublinear regret can be achieved by a simple gradient descent algorithm, known as Online Gradient Descent, demonstrated in Algorithm~\ref{alg:ogd}. 
+
+\begin{algorithm}[ht] 
+\caption{Online Gradient Descent (OGD)}
+\label{alg:ogd}
+\begin{algorithmic}
+    \STATE Select $x_1 \in \Xcal$ arbitrarily
+    \FOR{$t \in 1,2,\ldots, T$}
+        \STATE Play $x_t$ and receive loss $f_t(x_t)$
+        \STATE Set $x_{t+1} := \proj{x_t - \eta_t \nabla f_t(x_t)}$.
+    \ENDFOR
+\end{algorithmic}
+\end{algorithm}
+The following theorem proves that OGD suffers a sublinear regret, that is, it is a no-regret algorithm.
+\begin{theorem}[{\citet[Theorem 1]{zinkevich2003online}}]\label{thm:ogd} 
+    Suppose $f_t\in C^1_L(\Xcal)$ and convex for all $t\in [T]$. Then Online Gradient Descent with step size $\eta_t = t^{-1/2}$ guarantees 
+  \begin{equation}
+      R(T) \leq \frac{D^2\sqrt{T}}{2} + (\sqrt{T} - \tfrac{1}{2})L^2 = O(\sqrt{T}).
+    \label{eq:ogdregret}
+  \end{equation}
+  In particular, one has $\limsup_{t\to\infty} R(T)/T \leq 0$. Therefore, OGD is a no-regret algorithm.
+\end{theorem}
+\begin{proof}
+    This proof follows Zinkevich's, and proceeds in three steps. First, we prove that replacing convex losses with their linear approximation gives an upper bound on the regret. Next, we deal with projection step, and finally, we prove the claim of the theorem.
+
+    Assume that the algorithm produces points $x_1, x_2,\ldots$ and define $g_t = \nabla f_t(x_t)$. We claim that replacing $f_t$ with the linear functions $g_t(x) := \inner{g_t}{x}$ gives an upper bound on regert. This is a straightforward application of convexity. One can write for all $x\in\Xcal$,
+    \[
+        f_t(x) \geq f_t(x_t) + \inner{g_t}{x- x_t}.
+    \]
+Thus,
+\[
+    f_t(x_t) - f_t(x) \leq g_t(x_t) - g_t(x),
+\]
+which means that the regret would be at least as much with the modified sequence of functions. 
+
+Next, we define for all $t\in[T]$, the point $y_{t+1} := x_t - \eta_t g_t$. Observe that $x_{t+1} = \proj{y_{t+1}}$. For all $x^\star \in \Xcal$ we have
+\[
+    \|y_{t+1} - x^\star\|^2 = \|x_t - x^\star\|^2 - 2\eta_t \inner{g_t}{x_t - x^\star} + \eta_t^2 \|g_t\|^2.
+\]
+%One can regard the first term as a \emph{potential}, the second as the \emph{immediate cost}, and the third as the \emph{error}. \note{More on this later?} 
+By Projection Lemma (Lemma~\ref{lem:projection}), we have $\|x_{t+1} - x^\star\| \leq \|y_{t+1} - x^\star\|$. Thus, by reorganising terms we get
+\[
+    \inner{g_t}{x_t - x^\star} \leq \frac{1}{2\eta_t}(\|x_t - x^\star\|^2 - \|x_{t+1} - x^\star\|^2) + \frac{\eta_t}{2} \|g_t\|^2.
+\]
+The regret (for the functions $g_t$) is nothing else than the sum of left-hand-side over all~$t$. Hence, 
+\begin{align*}
+    R(T) &\leq \sum_{t=1}^T \inner{g_t}{x_t - x^\star} \\
+         &\leq \sum_{t=1}^T \bigg(\frac{1}{2\eta_t}(\|x_t - x^\star\|^2 - \|x_{t+1} - x^\star\|^2) + \frac{\eta_t}{2} \|g_t\|^2\bigg) \\
+         &= \frac{1}{2\eta_1}\|x_1 - x^\star\|^2 - \frac{1}{2\eta_T}\|x_{T+1} - x^\star\|^2 + \frac{1}{2}\sum_{t=2}^T \bigg(\frac{1}{\eta_t} - \frac{1}{\eta_{t-1}}\bigg)\|x_t - x^\star\|^2 + \frac{L^2}{2} \sum_{t=1}^T \eta_t \\
+         &\leq D^2\left(\frac{1}{2\eta_1} +  \frac{1}{2}\sum_{t=2}^T \left(\frac{1}{\eta_t} - \frac{1}{\eta_{t-1}}\right)  \right) + \frac{L^2}{2} \sum_{t=1}^T \eta_t \\
+         &=D^2\frac{1}{2\eta_T} + \frac{L^2}{2} \sum_{t=1}^T \eta_t.
+\end{align*}
+As we chose $\eta_t = t^{-1/2}$, we can use the fact that $\sum_{t=1}^T t^{-1/2} \leq 2\sqrt{T} - 1$, and get
+\[
+    R(T) \leq \frac{1}{2}D^2\sqrt{T} + L^2(\sqrt{T} - \tfrac{1}{2}),
+\]
+as desired.
+\end{proof}
+
+\begin{remark}
+    It is worthwhile to mention that if $L$ and $D$ are known to the player in advance, he can choose a more accurate learning rate, $\eta_t = \frac{D}{L}t^{-1/2}$, and obtain the regret bound
+\[
+    R(T) \leq \frac{3}{2}DL\sqrt{T}.
+\]
+The proof is essentially the same, hence we exclude it. The intersted reader is referred to \citet{hazan2015} for a complete exposition.
+\end{remark}
+
+If there are more restrictions to the function class, and the player knows those restrictions, it is possible to get better regret bounds. One such example is when the functions are \emph{strongly convex}.
+
+\subsection{Strongly Convex Losses}
+We first remind the notion of strong convexity and explain some of its properties. In the following, we assume that $\Xcal$ is a closed convex subset of $\RR^d$.
+
+\begin{definition}[Strongly Convex Function]
+    A $C^1$ function $f:\Xcal\to\RR$ is $\alpha$-strongly convex (w.r.t. the norm $\|\cdot\|$), if for all $x,y\in\mathop{\mathrm{relint}}\Xcal$ and all $s \in (0,1)$, one has
+    \[
+        f(sx + (1-s)y) \leq sf(x) + (1-s)f(y) - \frac{\alpha}{2}s(1-s)\|x-y\|^2.
+    \]
+\end{definition}
+
+\begin{remark}
+    If the norm is taken to be the Euclidean norm, and if $f$ is $C^1$, strong convexity is equivalent to 
+    \[
+        f(y) \geq f(x) + \inner{\nabla f(x)}{y-x} + \frac{\alpha}{2}\|y-x\|_2^2.
+    \]
+    Moreover, if $f$ is continuously twice differentiable, then, strong convexity w.r.t. the Euclidean norm is equivalent to $D^2 f(x) \succeq \alpha I$ for all $x\in\Xcal$.
+\end{remark}
+
+The following theorem shows that if the step sizes for OGD are chosen properly, logarithmic regrets can be achieved for the case of strongly convex functions. Note that the player should be aware of the value of $\alpha$.
+
+\begin{theorem}[{\citet[Theorem 1]{hazan2007logarithmic}}]\label{thm:ogdsc}
+    Assuming that $f_t$ are $L$-Lipschitz and $\alpha$-strongly convex, the OGD algorithm with step sizes $\eta_t = \frac{1}{\alpha t}$ achieves the following guarantee, for all $T > 1$.
+    \[
+        R(T) \leq \frac{L^2}{2\alpha} (1+\log T) = O(\log T).
+    \]
+\end{theorem}
+
+\section{Poisson Processes}
+Here we bring an introduction to Poisson processes. We omit some details and refer the reader to the excellent book by~\citet{kingman1992poisson}. 
+
+Let $(X, \Fcal)$ be a measurable space. A \emph{Poisson process} on $X$ is a random countable subset $\Pi$ of~$X$, such that
+\begin{enumerate}
+    \item For any disjoint measurable subsets $A_1,\ldots, A_n$ of $X$, the random variables $N(A_1)$, $N(A_2)$, \dots, $N(A_n)$ are independent, where $N(A) := |\Pi \cap A|$,
+    \item $N(A)$ has the Poisson distribution with mean $\mu = \mu(A)$, where $0\leq \mu \leq \infty$. That is, for all integers $k \geq 0$,
+        \[
+            \prob{N(A) = k} = e^{-\mu(A)} \frac{\mu(A)^k}{k!}.
+        \]
+\end{enumerate}
+If $\mu(A)$ is finite, the intersection $\Pi \cap A$ is finite, and empty if $\mu = 0$, almost surely. Also, if $\mu(A) = \infty$, then $\Pi\cap A$ is countably infinite. It can be shown that $\mu$ is a measure on $X$, which is called the \emph{mean measure}. The name comes from the fact that $\ev{|\Pi \cap A|} = \mu(A)$.
+
+In the case that $X$ is the real line $\RR$ with its Borel $\sigma$-algebra, we may express the Poisson process in terms of its \emph{intensity} or \emph{rate}, defined as a positive measurable function $\lambda$ with
+\[
+    \mu(A) = \int_A \lambda(x)\,dx.
+\]
+This is indeed the Radon-Nikodym derivative of $\mu$ with respect to the Lebesgue measure on~$\RR$ (if the derivative exists). In the case that $\lambda$ is constant, we call the process a \emph{homogeneous Poisson process}.
+
+Recall that when $\mu$ is not infinite on bounded sets, it is determined uniquely by its values on the intervals $(a, b]$. Define
+\begin{align*}
+    M(\tau) = \mu(0, \tau] = \int_0^\tau \lambda(u)\, du,\quad \tau \geq 0,\\
+    M(\tau) = -\mu(\tau, 0] = -\int_\tau^0 \lambda(u)\, du,\quad \tau < 0.
+\end{align*}
+Thus, we observe that $M$ is an increasing function and 
+\[
+    \mu(a, b] = M(b) - M(a).
+\] 
+
+We finish this section with a useful lemma that we need later on.
+\begin{lemma}
+    Let $\Pi = \{X_1, X_2, \ldots\}$ be a Poisson process on $(0, \infty)$ with intensity $\lambda$, and $M$ be as above. Then, for $0<a<b$, the probability that $\Pi \cap (a,b)$ is empty equals
+    \[
+        \prob{\Pi \cap (a,b) = \varnothing} = e^{-(M(b) - M(a))}.
+    \]
+\end{lemma}
+\begin{proof}
+    As mentioned before, the number of points of $\Pi$ inside $(a,b)$ follows a Poisson distribution with mean $\mu = \mu(a,b) = \int_a^b \lambda = M(b)-M(a)$. As a Poisson random variable $N$ has probability mass function $\prob{N=k} = e^{-\mu}\mu^k/k!$, we get the result by setting $k=0$.
+\end{proof}
+
+\section{Submodularity}
+Submodular functions are discrete analogs of convex functions. They arise naturally in many areas, such as the study of graphs, matroids, covering problems, and facility location problems. These functions are extensively studied in operations research and combinatorial optimization \citep{krause2012submodular}. Recently, submodular functions have proven to be key concepts in other areas such as machine learning, algorithmic game theory, and social sciences. As such, they have been applied to a host of important problems such as modeling valuation functions in combinatorial auctions, feature and variable selection \citep{krause05near}, data summarization \citep{lin2011class}, and influence maximization \citep{kempe}.
+
+\subsection{Basic Notions}\label{sec:basicnotions}
+In the following section, we assume $V = \{1,\ldots, n\}$ to be the ground set. A \emph{set function} $f$ is a real-valued function whose domain is the power set of $V$, \ie, $f\from 2^{V} \to \RR$. One can also look at a set function as a function defined on the discrete hypercube $C_n = \{-1, 1\}^n$. A set function $f$ is called \emph{submodular} if for all $A,B\subseteq V$, it holds
+\begin{equation}\label{eq:submoddefn}
+    f(A) + f(B) \geq f(A\cup B) + f(A \cap B).
+\end{equation}
+It can be shown that this condition is equivalent to the so-called \emph{diminishing returns} (DR) property, that is, for all $A \subseteq B \subseteq V$ and $x \not\in B$, it holds that
+\begin{equation}\label{eq:dimret}
+    f(A + x) - f(A) \geq f(B+ x) - f(B),
+\end{equation}
+where $A+x$ is a shorthand for $A \cup \{x\}$. Also, a set function $f$ is called \emph{monotone}, if for all $A\subseteq B\subseteq V$, it holds
+\[f(A) \leq f(B).\]
+
+In optimisation problems related to set function, as in continuous optimisation, one can have different types of combinatorial constraints. One of the most popular types of constraints are \emph{matroid} constraints. That is, one searches for the maximum (or minimum) of a set function over the sets that are from a matroid. Basically, a matroid is a structure that abstracts and generalises the notion of linear independence in vector spaces, and is defined as follows.
+
+\begin{definition}[Matroid]
+    Let $V$ be a finite ground set. A collection of subsets $\Mcal \subseteq 2^V$ of $V$ is called a \emph{matroid} if 
+    \begin{enumerate}
+        \item $\emptyset \in \Mcal$,
+        \item If $A\in\Mcal$ and $B \subseteq A$, then $B \in \Mcal$. That is, $\Mcal$ is downwards closed.
+        \item If $A, B\in\Mcal$ with $|A| > |B|$, then there exists an element $x\in A\setminus B$ such that $B + x \in \Mcal$.
+    \end{enumerate}
+\end{definition}
+Usually the elements of a matroid are called \emph{independent sets}. The maximal elements of a matroid are of importance, and are called \emph{bases} of the matroid. One can prove that the size of all basis elements of a matroid are the same (called the \emph{rank} of the matroid).
+
+For \emph{any} subset of $V$, one can assing a number $r(A)$ called the \emph{rank of $A$}, which is the size of the largest independent set $B\subseteq A$. An interesting result in matroid theory states that the rank function of a matroid is submodular. Moreover, this gives an alternative defintion of a matroid, as follows.
+
+\begin{definition}[Matroid, Second Definition] Let $V$ be a finite ground set, and $r\from 2^V\to \ZZ_+$ be a function satisfying
+    \begin{enumerate}
+        \item For any $A\subseteq V$, $r(A) \leq |A|$,
+        \item $r$ is submodular,
+        \item For all $A\subseteq V$ and all $x\in V$, $r(A) \leq r(A+x) \leq r(A) + 1$.
+    \end{enumerate}
+    Then, the set 
+    \[
+        \{ A\subseteq V \mid r(A) = |A|\}
+    \]
+    is a matroid over $V$.
+\end{definition}
+
+A running example for a matroid is the \emph{$k$-uniform matroid}, which is the set of all subsets of size at most $k$, for some $k\in\NN$. Other important matroids, including the partition matroid, are of important use in applications, for which the reader is referred to \citet[Chapter II.2]{fujishige2005submodular}.
+
+
+\subsection{Continuous Extensions}\label{sec:extensions}
+
+The idea of relaxing a combinatorial problem to a continuous optimisation problem, and translating the continuous solution back to a combinatorial solution (i.e. \emph{rounding}) is ubiquitous in combinatorial optimisation community. Likewise, for submodular set functions, one may look for \emph{extensions} to continuous domains. In what follows, we introduce the \emph{Lov\'asz extension}, and in the next section we introduce the \emph{multilinear extension}, which both are studied extensively in submodularity community and are related to this thesis.
+
+The Lov\'asz extension \citep{lovasz1983submodular} creates a connection between submodular functions and convex functions, and thus, is helpful for submodular minimisation. 
+
+\begin{definition}[Lov\'asz Extension]
+    Let $f\from 2^V\to\RR$ be a set function with $f(\emptyset) = 0$. The Lov\'asz extension of $f$ is the function $f_L:\RR^n\to \RR$ defined as follows: For $x\in\RR^n$, order the components in decreasing order $x_{i_1} \geq x_{i_2} \geq \cdots \geq x_{i_n}$, and define $f_L(x)$ to be 
+    \[
+        f_L(x) = \sum_{j=1}^n x_{i_j}[f(\{i_1, \ldots, i_j\}) - f(\{i_1, \ldots, i_{j-1}\}) ].
+    \]
+\end{definition}
+The importance of this extension resides in the following theorem.
+\begin{theorem}[{\cite[Proposition 4.1]{lovasz1983submodular}}]
+    Let $f$ be any set function defined on subsets of $V$ and let $f_L$ be its Lov\'asz extension on the nonnegative vectors. Then $f$ is submodular if and only if $f_L$ is convex.
+\end{theorem}
+
+This theorem allows one to minimise the Lov\'asz extension efficiently (using, say, the Ellipsoid method), and hence find the minimum of a submodular function. Thus, submodular minimisation can be done in poly-time (see \citet{fujishige2005submodular} and references therein).
+
+\subsection{Submodular Maximisation and Multilinear Extension}
+
+...... hardness.......
+
+
+For a monotone submodular set function $f\from 2^V \to \RR_+$, a canonical extension to a smooth monotone submodular function (in the sense of Section~\ref{sec:contsubmod}) can be obtained as follows \citep{Calinescu2011}: For $x \in [0, 1]^n$, let $\hat{x}$ denote a random vector in $C_n$ where each coordinate $j$ is independently rounded to 1 with probability $x_j$ or 0 otherwise. We identify $\hat{x} \in C_n$ with a set $S \subseteq V$ whose indicator vector is $\hat{x} = \one_S$. Then, define
+\[
+    F(x) := \ev[f(\hat{x})] = \sum_{S\subseteq V} f(S)\prod_{i\in S} x_i \prod_{j\not\in S}(1-x_j).
+\]
+We call $F$ the \emph{multilinear extension} of $f$.
+
+\begin{lemma}
+    The multilinear extension of a monotone submodular set function $f$ is monotone and (continuous) submodular.
+\end{lemma}
+\begin{proof}
+    By definition of $F$, one has
+    \[
+        \frac{\partial F}{\partial x_i}(x) = \ev[f(\hat{x})\mid \hat{x}_i = 1] - \ev[f(\hat{x})\mid \hat{x}_i = 0] \geq 0,
+    \]
+    thus $F$ is monotone, as $\grad F(x) \geq 0$.
+
+    Also, for $i\neq j$ we can compute
+    \begin{align*}
+        \frac{\partial^2 F}{\partial x_i\partial x_j}(x) &= \ev[f(\hat{x})\mid \hat{x}_i = 1, \hat{x}_j = 1] - \ev[f(\hat{x})\mid \hat{x}_i = 1, \hat{x}_j = 0] \\
+                                                         &- \ev[f(\hat{x})\mid \hat{x}_i = 0, \hat{x}_j = 1] + \ev[f(\hat{x})\mid \hat{x}_i = 0, \hat{x}_j = 0] 
+                                                         \leq 0,
+    \end{align*}
+    where the last inequality follows from submodularity of $f$. Moreover, $\partial^2 F(x)/\partial x_i^2 = 0$. Thus, $F$ is continuous submodular (this also shows that $F$ is also DR-submodular, see Definition~\ref{def:dr}).
+\end{proof}
+
+\textbf{TODO: explain matroid polytope and the continuous greedy algorithm.}
+
+\subsection{Rounding} Here I shall explain the Swap-Rounding. \textbf{TODO: complete the picture and bring the theorem that one can maximise monotone submodular with matroid constraints\dots}
+
+\subsection{Continuous Submodularity}\label{sec:contsubmod}
+The notion of submodularity we defined in Section~\ref{sec:basicnotions} can be extended to more general structures such as distributive lattices and continuous domains. Our goal in this section is to present some of such extensions to continuous domains \citep{bach2016submodular}.
+
+Let $n\in\NN$ and take $\Xcal_1, \ldots, \Xcal_n$ to be compact subsets of $\RR$. Define $\Xcal = \prod_i \Xcal_i$ to be the product space of all $\Xcal_i$. Our running examples for $\Xcal_i$ is either finite sets (discrete) or intervals (continuous).
+
+\begin{definition}[Submodular Function]
+    A continuous function $f\from \Xcal \to \RR$ is called \emph{(continuous) submodular} if for all $x,y\in\Xcal$, one has 
+    \begin{equation}\label{eq:continuoussubmoddef}
+        f(x) + f(y) \geq f(x\wedge y) + f(x \vee y),
+    \end{equation}
+    where $\wedge$ is component-wise minimum, and $\vee$ is component-wise maximum.
+\end{definition}
+
+The following lemma sheds light on the connection with our previous definition of submodularity \eqref{eq:submoddefn}.
+
+\begin{lemma}
+    Let $f\from \Xcal\to\RR_+$ be a continuous function and $x\in\Xcal$. Let $e_i, e_j$ be two basis vectors of $\RR^n$, and $a_i, a_j \in \RR_+$, such that $x_i + a_ie_i \in \Xcal_i$ and $x_j + a_je_j \in \Xcal_j$. Then $f$ is continuous submodular \eqref{eq:continuoussubmoddef} if and only if
+    \begin{equation}\label{eq:contsubmoddef2}
+        f(x + a_ie_i) + f(x + a_je_j) \geq f(x) + f(x + a_ie_i + a_je_j).
+    \end{equation}
+\end{lemma}
+\begin{proof}
+    If $f$ is submodular in the sense of \eqref{eq:continuoussubmoddef}, then take $x$ to be $x+a_ie_i$ and $y$ to be $x+a_je_j$. The inequality follows from the definition.  For the other direction of the lemma, one can argue by induction on the number of different coordinates in $x\vee y$ and $x\wedge y$. We omit the details here.
+\end{proof}
+
+The lemma above is most useful if one considers the limiting cases. If $\Xcal_l$ are subsets of $\ZZ$, the case where $a_i = a_j = 1$ is important, and when $\Xcal_l$ are intervals, the limiting case $a_i \to 0$ is important. The special case when $f$ is twice differentiable gives rise to the following lemma.
+
+\begin{lemma}
+    Let $\Xcal_k$ be intervals in $\RR$ and $f\from \Xcal \to \RR$ be a continuously twice differentiable function. Then $f$ is submodular if and only if for all $x\in\mathop{\mathrm{int}}\Xcal$,
+    \[
+        \frac{\partial^2 f}{\partial x_i \partial x_j} (x) \leq 0,\quad \forall i\neq j.
+    \]
+\end{lemma}
+
+\subsubsection*{Examples of Submodular Functions}
+
+We bring some examples of submodular functions.
+\begin{itemize}
+    \item Set $\Xcal_i = \{0 ,1\}$ for all $i \in [k]$. Then, it is easy to see that the definition \eqref{eq:continuoussubmoddef} coincides with the usual definition of a submodular \emph{set function} \eqref{eq:submoddefn}. Here, $x$ is the indicator vector of a set, and $x\vee y$ is the indicator of the union of the corresponding sets, etc.
+
+    \item Let $\varphi_{ij}\from \RR\to\RR$ be convex. One can prove that the functions $x\mapsto \varphi_{ij}(x_i - x_j)$ are submodular. Moreover, for a concave function $g\from\RR\to\RR$, the function $x\mapsto g(\sum_{i=1}^n \lambda_ix_i)$ is submodular, if all $\lambda_i$ are nonnegative. These are two examples of submodular functions which are convex and concave, respectively.
+
+    \item The Lov\'asz extension of a submodular set function $f$ (defined in Section~\ref{sec:extensions}) is always convex and submodular. Also, the multilinear extension of $f$ is submodular, but neither convex nor concave in general.
+\end{itemize}
+
+The careful reader should have noticed by now that the notion of continuous submodularity only generalises \eqref{eq:submoddefn}. One may ask, is there a similar property implied from continuous submodularity analoguos to \eqref{eq:dimret}? The general answer is no \cite{soma2014optimal}. This motivated \citet{bian2016guaranteed} to define a subclass of continuous submodular functions, known as DR-submodular functions, that resemble the DR property. 
+
+\begin{definition}[DR-submodular Function]\label{def:dr}
+    A continuous function $f\from \Xcal \to \RR$ is called DR-submodular if for all $a\leq b \in \Xcal$, all $i\in V$, and all $r\in\RR_+$ such that $a + re_i \in \Xcal$ and $b+re_i\in\Xcal$, it holds
+    \[
+        f(a + re_i) - f(a) \geq f(b + re_i) - f(b).
+    \]
+    Moreover, if $f$ is twice differentiable, this condition is equivalent to 
+    \[
+        \frac{\partial^2 f}{\partial x_i \partial x_j}(x) \leq 0,\quad \forall x\in\Xcal, \;\;\forall i,j \in [k].
+    \]
+\end{definition}
+
+Interestingly, a similar hardness result as for submodular set function maximisation hold for DR-submodular functions, which we bring a gist in the following theorem. Thus, in both regimes (continuous or discrete) one has the same approximation ratio and (roughly) the same hardness. 
+
+\begin{theorem}[{\citet[Proposition 3]{bian2016guaranteed}}]
+    The problem of maximising a monotone DR-submodular continuous function subject to a general down-closed polytope constraint is NP-hard. For any $\varepsilon > 0$, it cannot be approximated in polynomial time within a ratio of $(1 - 1/e + \varepsilon)$ (up to low-order terms), unless RP $=$ NP.
+\end{theorem}
+
+
+
+\section{Online Submodular Maximisation}
+
+As explained in previous sections, it is  NP-hard to find an optimal solution (in hindsight) for submodular maximisation problem. Thus, the usual notion of regret \eqref{eq:regretdef} is no longer meaningful, as no poly-time algorithm is going to achieve sublinear regret (unless P = NP). Instead,  we consider approximate no-regret algorithms: 
+\begin{definition}[No $\beta$-regret Algorithm]
+    For a maximisation task, we call an algorithm $\Acal$ a \emph{no $\beta$-regret algorithm} for some $\beta < 1$ if for any sequence of functions $(f_t)_{t\in\NN}\subset \Hcal$ inside a function class $\Hcal$, with $f_t\from\Xcal\to\RR$, $\Acal$ produces a sequence of points $(x_t)_{t\in\NN}\subset \Xcal$ such that for any $T\in\NN$, the $\beta$-regret defined as
+\begin{equation}
+    R_\beta(T) := \beta\cdot\max_{x^\star\in\Xcal} \sum_{t=1}^T f_t(x^\star) - \sum_{t=1}^T f_t(x_t),
+  \label{eq:apprx-reg}
+\end{equation}
+is sublinear, that is, $R_\beta(T) = o(T)$.
+\end{definition}
+In this setting, since the task is maximisation, we regard $f_t$ as \emph{utility} rather than a loss. We drop $\beta$ in $R_\beta$ if it is clear from the context.
+
+For monotone DR-submodular functions, one can show that Online Gradient Ascent achieves sublinear $\frac{1}{2}$-regret. 
+\begin{theorem}[{\citet[Theorem 2]{chen18f}}]\label{thm:osmhalfreg}
+    Assume that the functions $f_t\from \Xcal \to \RR_+$ are monotone and DR-submodular for $t\in[T]$.  Let $x_1,\ldots, x_T$ be the choices of OGD with step size $\eta_t = \frac{D}{L\sqrt{t}}$, where $D$ is the diameter of $\Xcal$ and $L$ is an upper bound on Lipschitz constants of $f_t$, then we have
+    \begin{equation}\label{eq:halfreg-dr-subm}
+      \frac{1}{2}\max_{x^\star\in\Xcal} \sum_{t=1}^T f_t(x^\star) - \sum_{t=1}^T f_t(x_t) \leq \frac{3}{4}DL\sqrt{T}.
+    \end{equation}
+\end{theorem}
+
+We close this section with two remarks.
+\begin{remark}
+    Theorem~\ref{thm:osmhalfreg} also holds when one uses stochastic gradients, and the result holds in expectation. This is especially useful when $f_t$ are defined as expectations (thus, hard to compute), and one can easily sample from the distribution over the gradients. 
+\end{remark}
+\begin{remark}
+    In work by \citep{chen2018projection}, a projection-free no $(1-1/e)$-regret algorithm is provided. However, in this thesis we only analyse the OGD algorithm's performance due to its simplicity. The interested reader is referred to Remark~\ref{rem:lengthasymp} for further discussion.
+\end{remark}
+ 

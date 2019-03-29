@@ -1,0 +1,108 @@
+\documentclass[12pt,a4paper]{amsbook}
+
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+
+\usepackage{Definitions}
+
+\usepackage[a4paper,twoside,vscale=.8,hscale=.75,nomarginpar,hmarginratio=1:1]{geometry}
+
+\usepackage{hyperref}
+\usepackage{pdfpages}
+\usepackage{xcolor}
+
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+\definecolor{orangegood}{RGB}{226,147,2}
+\definecolor{bluegood}{RGB}{0,92,155}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=bluegood,
+    linktoc=page,
+    citecolor=bluegood
+}
+
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{xca}[theorem]{Exercise}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\numberwithin{section}{chapter}
+\numberwithin{equation}{chapter}
+
+\newcommand{\from}{\colon}
+\newcommand{\ev}{\mathbf{E}}
+\newcommand{\xhat}{\hat{x}}
+\newcommand{\prob}[1]{\mathop{\mathrm{Pr}}[#1]}
+
+\newcommand{\note}[1]{\textit{\color{cyan}Note: #1}}
+\newcommand{\projon}[2]{\operatorname{Proj}_{#1}(#2)}
+\newcommand{\proj}[1]{\operatorname{Proj}(#1)}
+\setcounter{tocdepth}{2}
+
+\newcommand{\simplex}{\Delta}
+\newcommand{\grad}{\nabla}
+
+\usepackage[round]{natbib}
+\setcitestyle{authoryear,open={(},close={)}}
+
+\begin{document}
+\frontmatter
+
+\input{titlepage}
+\setcounter{page}{0}
+\clearpage\thispagestyle{empty}\mbox{}\clearpage
+\title{Consistent Online Optimisation}
+%    Information for first author
+\author{Mohammad Reza Karimi Jaghargh}
+%    Address of record for the research reported here
+\address{Learning and Adaptive Systems Group, Computer Science Department, ETH Z\"urich}
+%    Current address
+\email{mkarimi@ethz.ch}
+\maketitle
+
+\cleardoublepage
+\thispagestyle{empty}
+\vspace*{13.5pc}
+\begin{center}
+    To Ali,\\[2pt]
+    the shining star in the darkness,\\[2pt]
+    and to my family, for their constant support.
+\end{center}
+\cleardoublepage
+
+\setcounter{page}{5}
+\tableofcontents
+
+\mainmatter
+
+\input{ch1-introduction}
+\input{ch2-prelim}
+\input{ch3-consistent}
+\input{ch35-regularisation}
+\input{ch4-experiments}
+\input{ch5-conclusion}
+
+\appendix
+\input{app-proofs-ch2}
+
+\backmatter
+
+\bibliographystyle{agsm}    % or amsalpha
+\bibliography{thesis}
+
+\newpage
+\includepdf[pages={-}]{declaration-originality.pdf}
+\end{document}

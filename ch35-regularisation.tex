@@ -1,0 +1,70 @@
+\chapter{Regularisation}
+
+\section{Banach Spaces}
+
+
+\section{Regularisation in Online Learning}
+
+\section{Consistent RFTL}
+
+\section{Example: OGD Revisited}
+\section{Example: Experts Advice}
+\textbf{Todo: talk  about the experts problem and negative entropy regularisation\dots} 
+
+Let $\simplex$ denote the $n$-simplex. Assume the sequence of functions $(f_t)_{t\in[T]}$ with $f_t\from\simplex\to \RR$ are Lipschitz continuous with respect to 1-norm, that is, for all $x\in\simplex$, we have $\|\grad f(x)\|_\infty \leq G_\infty$, for some $G_\infty>0$.
+
+The Exponentiated Gradient algorithm, gives sublinear regret, as stated in the following theorem:
+\begin{theorem}
+    Choose $x_1$ to be the center of the simplex. Then, at round $t$ play $x_t$ and update
+    \[
+        x_{t+1, i} = \frac{1}{Z}\cdot x_{t,i} \cdot e^{-\eta (\grad f_t(x_t))_i},
+    \]
+    where $Z$ is a normalising constant such that $x_{t+1}\in \simplex$. Playing such, with $\eta = \frac{1}{G_\infty} \sqrt{\frac{\log d}{T}}$ gives
+    \[
+        \mathrm{regret}_T \leq 2G_\infty \sqrt{T \log d}.
+    \]
+\end{theorem}
+
+We now note that the points $x_t$ does not move that fast in $\simplex$. By Pinsker's inequality, we have
+\[
+    2\|x_{t+1} - x_t\|_1^2 \leq \mathrm{KL}(x_{t+1}\|x_t).
+\]
+Thus, it suffices to bound the KL divergence between $x_{t+1}$ and $x_t$. For simplicity, set $\grad_t := \grad f_t(x_t)$. We have
+\begin{align*}
+    \mathrm{KL}(x_{t+1}\|x_t) &= \sum_{i=1}^d x_t^i \log\frac{x_t^i}{x_{t+1}^i} \\
+                              &= \sum_{i=1}^d x_t^i \cdot (\log x_t^i + \log Z - \log x_{t}^i + \eta \grad_t^i) \\
+                              &= \log Z + \eta \inner{x_t}{\grad_t}.
+\end{align*}
+\begin{lemma}
+    If $\eta \leq 1/G_\infty$, it holds that
+    \[
+        \log Z \leq -\eta\inner{x_t}{\grad_t} + \eta^2 G_\infty^2.
+    \]
+\end{lemma}
+\begin{proof}
+    Using the fact that for $x \leq 1$ it holds $e^x \leq 1 + x + x^2$, we get
+    \begin{align*}
+        \log Z &= \log \sum_{i=1}^d x_t^i \cdot e^{-\eta \grad_t^i} \\
+               &\leq \log \sum_{i=1}^d x_t^i\cdot (1 - \eta\grad_t^i + \eta^2(\grad_t^i)^2) \\
+               &\leq \log (1 - \eta\inner{x_t}{\grad_t} + \eta^2G_\infty^2) \\
+               &\leq - \eta\inner{x_t}{\grad_t} + \eta^2G_\infty^2 \qedhere
+    \end{align*}
+\end{proof}
+
+Now by the lemma we get our desired result. In summary, we have the following.
+\begin{proposition}
+    Let $(x_t)_{t\leq T}$ denote the sequence played by the EG algorithm. It holds
+    \[
+        \|x_{t+1} - x_t\|_1 \leq \frac{1}{\sqrt{2}}\,\eta\, G_\infty.
+    \]
+\end{proposition}
+
+Note that here, $\eta$ just depends on the time horizon $T$ (and hence, lacks an asymptotic characterisation). For overcoming this issue, we apply the ``doubling trick'': we can apply such trick, as the regret is of $O(\sqrt{T})$. By applying the doubling trick to EG algorithm and denoting by $\eta_t$ the learning rate at round $t$, we get $\eta_t = \Theta(1/\sqrt{t})$.
+
+Hence, we are in the place to apply our consistent meta algorithm to EG. Note that the path lenght (in 1-norm) is bounded above by $O(\sqrt{T})$, thus the following trade-off exists for each $0<\varepsilon<1$:
+\[
+    \ev(\mathrm{regret}_T) = O(T^{1-\frac{\varepsilon}{2}}),\quad \ev(\kappa_T) = O(T^{\frac{1}{2} + \frac{\varepsilon}{2}}).
+\]
+
+This result, however, is sub-optimal, as compared to \citet{altschuler2018online}.
+

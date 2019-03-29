@@ -1,0 +1,25 @@
+\chapter{Supplementary Lemmata}
+\begin{lemma}[Projection Lemma]\label{lem:projection}
+    Let $X$ be a nonempty convex closed set in $\RR^d$, $x\in \RR^d$ be a point and $z$ be any point in $X$. One has
+    \[
+        \| \proj{x} - z \| \leq \|x - z\|.
+    \]
+\end{lemma}
+\begin{proof}
+    Let $y = \proj{x}$. If $y=x$, then the claim is clear. So we assume that $x\not\in X$. We first note that $\inner{y-x}{y-z} \leq 0$. This is because $y$ is the projection of $x$ onto a convex set, and the hyperplane perpendicular to $x-y$ and passing through $y$ separates $z$ from~$x$.
+
+    For $\alpha \in [0,1]$ define $z_\alpha := z + \alpha(y-z)$. By convexity, $z_\alpha \in X$. Define
+    \[
+        f(\alpha) := \|z_\alpha - x\|^2 - \|z_\alpha - y\|^2. 
+    \]
+    We wish to prove that $f(0) \leq 0$.  As $z_1 = y$, we have $f(1) = 0$. Thus, it suffices to prove that $f'(\alpha) \leq 0$ for all $\alpha\in[0,1]$. We have
+    \[
+        f(\alpha) = \|z-x\|^2 - 2\alpha\inner{y-z}{x-z} - (1-2\alpha)\|z-y\|^2,
+    \]
+    and
+    \[
+        f'(\alpha) = 2\inner{y-z}{y-x} \leq 0.
+    \]
+    Hence, we are done.
+\end{proof}
+
