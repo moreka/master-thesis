@@ -72,7 +72,7 @@ For (i), we have $\eta_t = \frac{D}{L\sqrt{t}}$ and
 % meaning that $r_n \leq (2D + \delta)\sqrt{n}$.
 For (ii), we have $\eta_t = \frac{1}{\alpha t}$ and
   \[
-    p_t \leq L \sum_{j=1}^{t-1} \frac{1}{\alpha j} \leq \frac{L}{\alpha}(1+\log t).
+    p_t \leq L \sum_{j=1}^{t-1} \frac{1}{\alpha j} \leq \frac{L}{\alpha}(1+\log t). \qedhere
  \]
 \end{proof}
 
@@ -167,11 +167,11 @@ As we saw above, the additional regret of the algorithm depends on the length of
 \begin{proposition}\label{lem:bndextraregret}
     Assume $M(\tau) = \omega(\log \tau)$ and $\lambda(\tau) = \omega(1)$ to be increasing. Also assume that $(1/\lambda(\tau))' = o(1)$. Then, for all $t \in [T]$ one has
     \[
-        \ev[r_t - r_{p(t)}] \leq C/\lambda(r_t),
+        \ev[r_t - r_{p(t)}] \leq C_\lambda/\lambda(r_t),
     \]
-    where $C$ is a constant independent of $t$ and $r_t$, and expectation is with respect to the randomness of the Poisson process. Moreover,
+    where $C_\lambda$ is a constant only depending on $\lambda$, and expectation is with respect to the randomness of the Poisson process. Moreover,
     \[
-         \ev[\Ecal_T] \leq C\sum_{t=1}^T \frac{1}{\lambda(r_t)}.
+         \ev[\Ecal_T] \leq C_\lambda L\sum_{t=1}^T \frac{1}{\lambda(r_t)}.
     \]
 \end{proposition}
 
@@ -217,7 +217,7 @@ First we bring two supplementary lemmata which are crucial in the proof.
   since by L'H\^{o}pital's rule the last limit is equal to $1 - \lim_{\tau\to\infty} \frac{\lambda'(\tau)}{\lambda(\tau)^2} = 1$.
   Combining these two inequalities, we can observe that the following limit exists and the equality holds:
   \[
-    \lim_{\tau\to\infty} \frac{\log \int_0^\tau e^{M(u)}\,du}{M(\tau)}= 1.
+    \lim_{\tau\to\infty} \frac{\log \int_0^\tau e^{M(u)}\,du}{M(\tau)}= 1. \qedhere
   \]
 \end{proof}
 
@@ -268,34 +268,32 @@ First we bring two supplementary lemmata which are crucial in the proof.
 \end{align*}
 Now by Lemma~\ref{lem:boundingintegral}, one gets the desired bound. Also, by linearity of expectation, we get
 \begin{equation}\label{eq:extraregretsumbound}
-  \ev[\Ecal_T] = L\cdot\sum_{t=1}^T \ev[r_t - r_{p(t)}] \leq C\sum_{t=1}^T \frac{1}{\lambda(r_t)},
+  \ev[\Ecal_T] = L\cdot\sum_{t=1}^T \ev[r_t - r_{p(t)}] \leq C_\lambda L \sum_{t=1}^T \frac{1}{\lambda(r_t)},
 \end{equation}
 which finishes the proof.
 \end{proof}
 
 \section{Online Gradient Descent Trade-offs}\label{sec:ogdtradeoff}
-We are now ready to specialize the general algorithm above to obtain our main results. First, we bring a regret-consistency trade-off for OGD for convex and strongly convex functions. Next, we provide trade-offs for online submodular maximisation.
-
-It remains to specialize $\delta$ and $\lambda$ to achieve our desired bounds. 
+We are now ready to specialize the general algorithm above to obtain our main results. First, we bring a regret-consistency trade-off for OGD for convex and strongly convex functions. Next, we provide trade-offs for online submodular maximisation. We only need to specialize $\delta$ and $\lambda$ to achieve our desired bounds. 
 
 \begin{theorem}[Consistent OGD for Convex functions]\label{prop:convex}
   Let $f_t\in C^1_L(\Xcal)$ be convex for all $t\in[T]$. Let $\delta_t = \sqrt{t}$, and denote by $(r_t)$ the padded decision path. For a fixed $\varepsilon\in (0, 1]$  set
   \[
     \lambda(\tau) := (1+\varepsilon)\,\tau^\varepsilon, \quad M(\tau) = \tau^{1 + \varepsilon}.
   \]
-  Then: 
+  Then,
   \[
       \ev[\kappa_T] = O(T^{\frac{1}{2}+\frac{\varepsilon}{2}}),\quad \ev[\Rcal^{\mathrm{SOLO}}(T)] = O(T^{1-\frac{\varepsilon}{2}}).
   \]
 \end{theorem}
 \begin{proof}
-  It is easy to check that $\lambda(\tau)$ and $M(\tau)$ satisfy the conditions of Proposition~\ref{lem:bndextraregret}. Therefore:
+  It is easy to check that $\lambda(\tau)$ and $M(\tau)$ satisfy the conditions of Proposition~\ref{lem:bndextraregret}. Therefore,
   \[
-    \ev[r_t - r_{p(t)}] \leq \frac{C}{\lambda(r_t)} \leq \frac{C}{\lambda(\sqrt{t})} = \frac{C}{(1+\varepsilon)}t^{-{\frac{\varepsilon}{2}}} = C't^{-{\frac{\varepsilon}{2}}}.
+    \ev[r_t - r_{p(t)}] \leq \frac{C_\lambda}{\lambda(r_t)} \leq \frac{C_\lambda}{\lambda(\sqrt{t})} = \frac{C_\lambda}{(1+\varepsilon)}t^{-{\frac{\varepsilon}{2}}}.
   \]
   Then,
   \[
-    \ev[\Ecal_T] \leq C'\sum_{t=1}^T t^{-{\frac{\varepsilon}{2}}} \leq C'' T^{1 - \frac{\varepsilon}{2}} = O(T^{1 - \frac{\varepsilon}{2}}).
+      \ev[\Ecal_T] \leq \frac{C_\lambda L}{(1+\varepsilon)}\sum_{t=1}^T t^{-{\frac{\varepsilon}{2}}} \leq \frac{C_\lambda L}{(1+\varepsilon)(1-\frac{\varepsilon}{2})} T^{1 - \frac{\varepsilon}{2}} = O(T^{1 - \frac{\varepsilon}{2}}).
   \]
   By Theorem~\ref{thm:ogd}, we know that $\Rcal_\Acal(T) = O(\sqrt{T})$. Hence 
   \[
@@ -327,14 +325,53 @@ We can use a similar analysis in the strongly convex case.
   \end{equation}
   Also, by Proposition~\ref{lem:bndextraregret} and integral approximation we get
   \begin{equation}
-    \ev[\Ecal_T] \leq C + C\int_1^T \frac{1}{\lambda( \log u)}\,du = O(T^{1-\varepsilon\frac{1}{\gamma}}). 
+    \ev[\Ecal_T] \leq C + C\int_1^T \frac{1}{\lambda( \log u)}\,du = O(T^{1-\varepsilon\frac{1}{\gamma}}). \qedhere
   \end{equation}
 \end{proof}
 
 \begin{remark}\label{rem:lengthasymp}
     The reader should be convinced by now that for any online algorithm that has well-behaved asymptotic decision path length, one can use the SOLO algorithm using the right intensity function $\lambda$, and get a consistency/regret trade-off. Thus, a key element in using SOLO as an add-on to an online algorithm is to analyse the decision path length's asymptotics.
-\end{remark} 
+\end{remark}
 
+To further show the extent of freedom in choosing $\lambda$, we bring another theorem on another type of trade-off for standard OGD.
+\begin{theorem}[Consistent OGD, II]
+   Let $f_t\in C^1_L(\Xcal)$ be convex for all $t\in[T]$. Let $\delta_t = \sqrt{t}$, and denote by $(r_t)$ the padded decision path. Set
+  \[
+      \lambda(\tau) := \log(1+\tau) + \frac{\tau}{1+\tau}, \quad M(\tau) = \tau\log(1 + \tau).
+  \]
+  Then,
+  \[
+      \ev[\kappa_T] = \tilde{O}(\sqrt{T}),\quad \ev[\Rcal^{\mathrm{SOLO}}(T)] = O(T/\sqrt{\log T}) = o(T).
+  \]
+\end{theorem}
+\begin{proof}
+    It is easy to verify that $\lambda$ and $M$ satisfy the conditions of Proposition~\ref{lem:bndextraregret}.  Following the same line of proof as Theorem~\ref{prop:convex}, we arrive at 
+    \[
+        \ev[\Ecal_T] \leq C_\lambda\sum_{t=1}^T \frac{1}{\lambda(\sqrt{t})} \leq C_\lambda\int_1^T \frac{du}{\lambda(\sqrt{u})} = C_\lambda \int_1^T \frac{du}{\log(1+ \sqrt{u}) + \frac{\sqrt{u}}{1+\sqrt{u}}}.
+    \]
+    By a change of variable $v = \sqrt{u}$, we see the last integral is equal to
+    \[
+        \int_1^{\sqrt{T}} \frac{2v\,dv}{\log(1+v) + \frac{v}{1+v}} = 
+        \int_1^{\sqrt{T}} \frac{2\,dv}{\frac{\log(1+v)}{v} + \frac{1}{1+v}}.
+    \]
+    By Harmonic Mean-Geometric Mean inequality, we obtain
+    \[
+        \leq  \int_1^{\sqrt{T}} \sqrt{\frac{v(1+v)}{\log(1+v)}}\,dv < \int_1^{\sqrt{T}} \frac{1+v}{\sqrt{\log(1+v)}}\,dv.
+    \]
+    But one can show that the following asymptotics hold:
+    \[
+        \int \frac{\tau}{\sqrt{\log \tau}}\,d\tau = \sqrt{\frac{\pi}{2}}\cdot\mathrm{erfi}(\sqrt{2\log \tau}) = O\left(\frac{\tau^2}{\sqrt{\log \tau}}\right),
+    \]
+    resulting in
+    \[
+        \ev[\Ecal_T] = O\left(\frac{T}{\sqrt{\log T}}\right).
+    \]
+
+    For proving the bound on $\kappa_T$, we need to evaluate 
+    \[
+        \ev[\kappa_T] \leq M(r_T) \leq M((2D + 1)\sqrt{T}) = O(\sqrt{T}\log T) = \tilde{O}(\sqrt{T}). \qedhere
+    \]
+\end{proof}
 \section{Online Submodular Maximisation Trade-offs}\label{sec:submodapplication}
 In this section we show that a similar set of ideas apply to the problem of online submodular function maximisation. Note that in this case, due to hardness (see Theorem~\ref{thm:hardnesssubmod}), our goal is to find trade-offs between approximate $\beta$-regret and consistency for different classes of submodular functions. We give examples for two special cases: monotone DR-submodular functions~\cite{bian2016guaranteed} and monotone submodular set functions~\cite{nemhauser1978analysis}. 
 

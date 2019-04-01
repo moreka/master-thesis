@@ -22,7 +22,7 @@
 We evaluate the performance of our algorithm for different parameters of $\varepsilon$, demonstrating different points on the consistency vs. regret trade-off curve. Overall, we find that while the base algorithm $\mathcal{A}$ updates the solution at every time step, overwhelmingly we suffer very little additional regret when we choose to update significantly fewer times. 
 
 \section{Experiments}
-We focus on two cases: OCO and Online Submodular Maximisation.
+We focus on two cases: Online Convex Optimisation and Online Submodular Maximisation.
 \subsection*{Online Convex Optimisation} We perform Online Logistic Regression on the MNIST dataset of handwritten digits \citep{lecun1998mnist}, to distinguish digit 3 from 5 over the unit $\ell_1$ ball. The training data consists of 11\,552 images labeled with either $1$ or $-1$, and at each round, an image $u$ is selected uniformly at random. The algorithm proposes a vector $w$, and the incurred loss would be
 \[
     f(w) = \log(1 + e^{-y\cdot(u^\top w)}),
