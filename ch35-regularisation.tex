@@ -1,70 +1,208 @@
-\chapter{Regularisation}
+\chapter{Regularisation}\label{chap:rftl}
+In the previous chapter, we came up with a meta-algorithm that can be used for two types of OGD, as well as (discrete and continuous) online submodular maximisation. The only requirement of our meta-algorithm is a well-behavied decision path length asymptotics, as well as Lipschitz-continuity of loss (or utility) functions. In this chapter, we go a step further and show that our meta-algorithm can be used for the large class of regularised online algorithms. Concretely, we will show that for these online algorithms the behaviour of the decision path length can be controlled, and derive consistency/regret trade-offs.
 
-\section{Banach Spaces}
+\section{Basic Notions}
+\subsubsection*{Dual Spaces and Dual Norms}
+Let $E$ be a finite dimensional normed vector space over $\RR$, with norm $\|\cdot\|$. The \emph{dual space} $E^\star$ is defined as the space of all linear functionals over $E$, that is,
+\[
+    E^\star = \{ l\from E\to \RR \mid l\text{ is linear} \}.
+\]
+One knows from linear algebra that $E^\star$ is a vector space with the same dimension as $E$. 
+For $v\in E$ and $l\in E^\star$, the value $l(v)$ is also denoted by $\inner{l}{v}$ (not to be confused with an inner product).\footnote{Indeed, if $E$ is an inner product space, and the norm is defined via the inner product, by Riesz representation theorem, one can identify $l$ with a vector $u\in E$ and $l(v) = \inner{u}{v}$ is actually the inner product of $u$ and $v$.} Moreover, one can equip $E^\star$ with a norm, defined as
+\[
+    \|l\|^\star = \max_{\|x\| = 1} |\inner{l}{x}|.
+\]
 
+\subsubsection*{Fenchel Conjugates}
+Let $\phi\from E \to \RR$ be a differentiable strictly convex function. One can associate a function $\phi^\star\from E^\star \to \RR$ called the \emph{Fenchel conjugate} of $\phi$, defined as
+\[
+    \phi^\star (l) = \sup_{x\in E} \{ \inner{l}{x} - \phi(x) \}. 
+\]
 
-\section{Regularisation in Online Learning}
+Of particular interest is the Fenchel conjugate of a quadratic function $\phi(x) = \frac{1}{2}\inner{Ax}{x}$ for a symmetric positive definite matrix. One can compute $\phi^\star(l) = \frac{1}{2}\inner{A^{-1}l}{l}$. 
 
-\section{Consistent RFTL}
-
-\section{Example: OGD Revisited}
-\section{Example: Experts Advice}
-\textbf{Todo: talk  about the experts problem and negative entropy regularisation\dots} 
-
-Let $\simplex$ denote the $n$-simplex. Assume the sequence of functions $(f_t)_{t\in[T]}$ with $f_t\from\simplex\to \RR$ are Lipschitz continuous with respect to 1-norm, that is, for all $x\in\simplex$, we have $\|\grad f(x)\|_\infty \leq G_\infty$, for some $G_\infty>0$.
-
-The Exponentiated Gradient algorithm, gives sublinear regret, as stated in the following theorem:
-\begin{theorem}
-    Choose $x_1$ to be the center of the simplex. Then, at round $t$ play $x_t$ and update
+One of our uses of Fenchel duality is the following lemma, which explains the relation between a strongly convex function and its dual. Before proceeding, we remind the reader of the notion of a \emph{smooth} convex function.
+\begin{definition}[Smooth Convex Function]
+    A $C^1$ function $f \from E\to \RR$ is $\beta$-smooth with respect to the norm $\|\cdot\|$, if for all $x,y\in E$,
     \[
-        x_{t+1, i} = \frac{1}{Z}\cdot x_{t,i} \cdot e^{-\eta (\grad f_t(x_t))_i},
+        f(y) \leq f(x) + \inner{\grad f(x)}{y-x} + \frac{\beta}{2}\|x-y\|^2.
     \]
-    where $Z$ is a normalising constant such that $x_{t+1}\in \simplex$. Playing such, with $\eta = \frac{1}{G_\infty} \sqrt{\frac{\log d}{T}}$ gives
-    \[
-        \mathrm{regret}_T \leq 2G_\infty \sqrt{T \log d}.
-    \]
+\end{definition}
+\begin{lemma}[{Strong/Smooth Duality}] \label{lem:strongsmoothdual}
+    Suppose that $\phi \from E\to \RR$ is a closed and convex function. Then $\phi$ is $\alpha$-strongly convex with respect to a norm $\|\cdot\|$ if and only if $\phi^\star$ is $\frac{1}{\alpha}$-strongly smooth with respect to the dual norm $\|\cdot\|^\star$.
+\end{lemma}
+A proof of this lemma can be found in \citet{zalinescu2002convex}. Moreover, the relation between the Hessian of a function and its conjugate is described by the following theorem, which we bring a simplified reformulation here.
+\begin{theorem}[{\citet[Theorem 2.4]{rockafellar1990generalized}}]\label{thm:rock}
+    The function $f$ is twice differentiable at $x$ relative to the vector $v = \grad f(x)$ if and only if its conjugate $f^\star$ is twice differentiable at $v$ relative to the vector $x = \grad f^\star(v)$. Then the functions
+    $\frac{1}{2} D^2 f(x)$ and $\frac{1}{2} D^2 f^\star(x)$  are conjugate to each other.
 \end{theorem}
 
-We now note that the points $x_t$ does not move that fast in $\simplex$. By Pinsker's inequality, we have
+\subsubsection*{Matrix and Local Norms}
+Let $A$ be a positive semi-definite matrix. One can introduce a \emph{matrix norm} on $E$ based on $A$ as
 \[
-    2\|x_{t+1} - x_t\|_1^2 \leq \mathrm{KL}(x_{t+1}\|x_t).
+    \|x\|_A = \sqrt{\inner{Ax}{x}}.
 \]
-Thus, it suffices to bound the KL divergence between $x_{t+1}$ and $x_t$. For simplicity, set $\grad_t := \grad f_t(x_t)$. We have
-\begin{align*}
-    \mathrm{KL}(x_{t+1}\|x_t) &= \sum_{i=1}^d x_t^i \log\frac{x_t^i}{x_{t+1}^i} \\
-                              &= \sum_{i=1}^d x_t^i \cdot (\log x_t^i + \log Z - \log x_{t}^i + \eta \grad_t^i) \\
-                              &= \log Z + \eta \inner{x_t}{\grad_t}.
-\end{align*}
-\begin{lemma}
-    If $\eta \leq 1/G_\infty$, it holds that
+It can be shown that the dual norm to this matrix norm is a matrix norm defined via $A^{-1}$, that is, $\|x\|_{A}^\star = \|x\|_{A^{-1}}$.
+
+For a twice differentiable map $\phi\from E \to \RR$ which admits a Hessian, one can define a matrix norm at each point $z\in E$ as
+\[
+    \|x\|_z := \|x\|_{D^2\phi(z)} = \sqrt{\inner{D^2\phi(z)(x)}{x}},
+\]
+which we refer to as the \emph{local norm} at $z$.
+
+\section{Consistent Regularised Follow the Leader}
+In this section we bring the Regularised Follow The Leader (RFTL) algorithm, and describe its main properties which are related to this thesis. The reader is referred to \citet{hazan2016introduction} for further details. We then provide asymptotics for the decision path length of RFTL, resulting in a consistency/regret trade-off.
+
+As before, the decision space $\Xcal$ is assumed to be a convex and compact subset of $E$. Let $\phi\from E \to \RR$ be a strongly convex and smooth regulariser, that in the interior of $\Xcal$ has a Hessian.
+
+\begin{algorithm}[h!] 
+    \caption{Regularised Follow The Leader}
+\label{alg:rftl_algo}
+\begin{algorithmic}
+    \STATE $\phi$ is a regularisation function.
+    \STATE $\Xcal$ is a compact convex set in $E$.
+    \STATE $\eta$ is the step size.
+    \STATE $x_1 \leftarrow \argmin_{x \in \Xcal} \phi(x)$ is the first decision.
+    \FOR {$t \in [T]$}
+    \STATE Play $x_t$ and receive loss $f_t(x_t)$ and the gradient $\grad_t := \grad f_t(x_t)$.
+    \STATE Update
     \[
-        \log Z \leq -\eta\inner{x_t}{\grad_t} + \eta^2 G_\infty^2.
+        x_{t+1} = \argmin_{x\in \Xcal} \left\{ \eta \sum_{s=1}^{t} \inner{\nabla_s}{x} + \phi(x) \right\}
+    \]
+    \ENDFOR
+\end{algorithmic}
+\end{algorithm}
+
+\begin{theorem}[{\citet[Theorem 5.1]{hazan2016introduction}}]\label{thm:rftl}
+    For every $u \in \Xcal$, Algorithm~\ref{alg:rftl_algo} attains the following bound on regret:
+    \[
+        \Rcal(T) \leq 2\eta \sum_{t=1}^T\|\grad_t\|_t^{\star 2} + \frac{1}{\eta}(\phi(u) - \phi(x_1)).
+    \]
+    Moreover, if for all $t\in[T]$ the gradients satisfy $\|\grad_t\|_t^{\star} \leq G_\phi$, by optimising $\eta$, one gets
+    \[
+        \Rcal(T) \leq 2D_\phi G_\phi \sqrt{2T},
+    \]
+    where $D_\phi$ is the \emph{diameter} of $\Xcal$ with respect to $\phi$, defined as
+    \[
+    D_\phi = \sqrt{\max_{x,y\in\Xcal} \{\phi(x) - \phi(y)\} }.
+    \]
+
+\end{theorem}
+
+We do not bring the proof here, but we explain some of the important machinery used in the proof, the first of which is the notion of a Bregman divergence.
+
+\begin{definition}[Bregman Divergence]
+    Let $\phi\from E \to \RR$ be strongly convex and $C^1$. The Bregman divergence between two points $x,y\in E$ with respect to $\phi$ is defined as
+    \[
+        B_\phi(x, y) := \phi(x) - \phi(y) - \inner{\grad\phi(y)}{x-y}.
+    \]
+\end{definition}
+
+Note that if $\phi$ is twice differentiable, by the Mean Value Theorem one knows that the second order Taylor approximation is exact if one computes the Hessian at an intermediate point, \ie, 
+\[
+    B_\phi(x, y) = \frac{1}{2}\inner{D^2\phi(z)(x-y)}{ x-y},
+\]
+for some $z \in [x, y]$. With the language of local norms, this can be written as
+\begin{equation}\label{eq:defnlocalnorm}
+    B_\phi(x, y) = \frac{1}{2}\|x-y\|_z^2.
+\end{equation}
+In situations where $z$ is not used, we just write $\|\cdot\|_{x,y}$. A special local norm which is used in the proof and our analysis is the local norm at round $t$ of RFTL, that is, the one relating to Bregman divergence between $x_t$ and $x_{t+1}$. We denote this norm by
+\[
+    \|\cdot \|_t := \|\cdot\|_{x_t, x_{t+1}}.
+\]
+
+
+
+\begin{lemma}
+    Let $x_t$ and $x_{t+1}$ be two consecutive decisions made by RFTL. Also let $\grad_t\in E^\star$ to be the gradient of $f_t$ at the point $x_t$. Then, it holds
+    \[
+        \|x_t - x_{t+1}\|_t \leq 2\eta\cdot \|\grad_t\|_t^\star. 
     \]
 \end{lemma}
 \begin{proof}
-    Using the fact that for $x \leq 1$ it holds $e^x \leq 1 + x + x^2$, we get
+    This prove follows Hazan's. Define for $t\in[T]$ the function $F_t$ as
+    \[
+        F_t(x) = \eta \sum_{s=1}^{t} \inner{\nabla_s}{x} + \phi(x).
+    \]
+    The Taylor approximation at $x_{t+1}$ gives
     \begin{align*}
-        \log Z &= \log \sum_{i=1}^d x_t^i \cdot e^{-\eta \grad_t^i} \\
-               &\leq \log \sum_{i=1}^d x_t^i\cdot (1 - \eta\grad_t^i + \eta^2(\grad_t^i)^2) \\
-               &\leq \log (1 - \eta\inner{x_t}{\grad_t} + \eta^2G_\infty^2) \\
-               &\leq - \eta\inner{x_t}{\grad_t} + \eta^2G_\infty^2 \qedhere
+        F_t(x_t) &= F_t(x_{t+1}) + \inner{\grad F_t(x_{t+1})}{x_t - x_{t+1}} + B_{F_t}(x_t, x_{t+1}) \\
+                 &\geq F_t(x_{t+1}) +  B_{F_t}(x_t, x_{t+1}) \quad\quad  \text{($x_{t+1}$ is a minimiser of $F_t$ over $\Xcal$)} \\
+                 &= F_t(x_{t+1}) +  B_\phi(x_t, x_{t+1}),
     \end{align*}
+    where the last line is due to the fact that linear terms do not affect the Bregman divergence. Hence,
+    \begin{align*}
+        B_\phi(x_t, x_{t+1}) &\leq F_t(x_t) - F_t(x_{t+1}) \\
+                             &= F_{t-1}(x_t) - F_{t-1}(x_{t+1}) + \eta\inner{\grad_t}{x_t - x_{t+1}} \\
+                             &\leq \eta\inner{\grad_t}{x_t - x_{t+1}},
+    \end{align*}
+    as $x_t$ is the minimiser of $F_{t-1}$ over $\Xcal$. By \eqref{eq:defnlocalnorm} and the Cauchy-Schwarz inequality, one gets
+    \begin{align*}
+        \frac{1}{2}\|x_t - x_{t+1}\|_t^2 = B_\phi(x_t, x_{t+1}) \leq  \eta\inner{\grad_t}{x_t - x_{t+1}} \leq \eta\cdot \|\grad_t\|_t^\star \cdot \|x_t - x_{t+1}\|_t.
+    \end{align*}
+    Hence, the lemma follows.
 \end{proof}
 
-Now by the lemma we get our desired result. In summary, we have the following.
-\begin{proposition}
-    Let $(x_t)_{t\leq T}$ denote the sequence played by the EG algorithm. It holds
+ Our main goal in the rest of this section is to give a bound on decision path length.
+
+\begin{lemma}
+    Let $x_t$ and $x_{t+1}$ be two consecutive decisions made by RFTL. Also, let $\grad_t$ be the gradient of $f_t$ at round $t$. Then
     \[
-        \|x_{t+1} - x_t\|_1 \leq \frac{1}{\sqrt{2}}\,\eta\, G_\infty.
+        \|x_t - x_{t+1}\|_t \geq \sqrt{\alpha} \cdot \|x_t - x_{t+1}\|,
     \]
-\end{proposition}
+    and
+     \[
+         \|\grad_t\|_t^\star \leq \frac{1}{\sqrt{\alpha}}\cdot \|\nabla_t\|^\star.
+     \]
+\end{lemma}
+\begin{proof}
+    By definition of local norm, equation \eqref{eq:defnlocalnorm}, and strong convexity, one has
+    \begin{align*}
+        \frac{1}{2}\|x_t - x_{t+1}\|_t^2 &= B_\phi(x_t, x_{t+1})\\
+                                         &= \frac{1}{2}\inner{D^2\phi(z)(x_t-x_{t+1})}{x_t-x_{t+1}} \\
+                                         &\geq \frac{\alpha}{2} \|x_t-x_{t+1}\|^2,
+    \end{align*}
+    thus, the first inequality follows. For the second inequality, we observe that by Lemma~\ref{lem:strongsmoothdual}, $\phi^\star$ is $1/\alpha$-smooth, and by using Theorem~\ref{thm:rock}, we get
+    \begin{align*}
+        \|\grad_t\|_t^{\star 2} = \inner{  D^{-2}\phi(z)\grad_t } {\grad_t} = \inner{  D^2\phi^\star(z)\grad_t } {\grad_t} \leq \frac{1}{\alpha} \|\grad_t\|^{\star 2}, 
+    \end{align*}
+    and the inequality follows.
+\end{proof}
+\begin{corollary}\label{cor:lenstep}
+    One has
+    \[
+        \|x_t - x_{t+1}\| \leq 2\cdot\frac{\eta}{\alpha}\cdot \|\grad_t\|^\star.
+    \]
+    Moreover, if $f_t$ are $L$-Lipschitz with respect to the norm $\|\cdot\|$ for all $t\in[T]$, by choosing $\eta = \frac{D_\phi}{L} \sqrt{\alpha/2T}$ one gets the optimal regret bound for RFTL, and 
+    \[
+        \|x_t - x_{t+1}\| \leq \frac{2\eta}{\alpha}L = D_\phi \sqrt{\frac{2}{\alpha T}}.
+    \]
+\end{corollary}
 
-Note that here, $\eta$ just depends on the time horizon $T$ (and hence, lacks an asymptotic characterisation). For overcoming this issue, we apply the ``doubling trick'': we can apply such trick, as the regret is of $O(\sqrt{T})$. By applying the doubling trick to EG algorithm and denoting by $\eta_t$ the learning rate at round $t$, we get $\eta_t = \Theta(1/\sqrt{t})$.
+The careful reader may have noticed that the step size $\eta$ is fixed in the analysis above, and is dependent on $T$, that is, the asymptotics we get for the length of the decision path will be linear, which does not let us to use our consistent meta-algorithm on top of RFTL. However, using a trick called the ``Doubling Trick'' we can overcome this situation, and regularly decrease $\eta$ over time. The trick is explained in the following lemma.
 
-Hence, we are in the place to apply our consistent meta algorithm to EG. Note that the path lenght (in 1-norm) is bounded above by $O(\sqrt{T})$, thus the following trade-off exists for each $0<\varepsilon<1$:
+\begin{lemma}[{Doubling Trick, \citet[Section 2.3.1]{shalev2012online}}]
+    Consider an algorithm $\Acal$ that enjoys a regret bound of the form $C\sqrt{T}$, but its parameters (such as $\eta$) require the knowledge of $T$. By running $\Acal$ on the $2^m$ rounds $t = 2^m,\ldots,2^{m+1} -1$ for $m\in \NN$, $\Acal$ does not need to know the time horizon, and the regret of this new algorithm is at most $\frac{\sqrt{2}}{\sqrt{2} - 1}C\sqrt{T}$.
+\end{lemma}
+
+It follows from the lemma above and Theorem~\ref{thm:rftl}, that using the Doubling Trick, we can assume that 
 \[
-    \ev(\mathrm{regret}_T) = O(T^{1-\frac{\varepsilon}{2}}),\quad \ev(\kappa_T) = O(T^{\frac{1}{2} + \frac{\varepsilon}{2}}).
+    \frac{D_\phi}{L} \sqrt{\alpha/2}\cdot t^{-1/2} \leq \eta_t \leq \frac{D_\phi}{L} \sqrt{\alpha} \cdot t^{-1/2}.
 \]
+Moreover, from Corollary~\ref{cor:lenstep} it follows that 
+\[
+    \|x_t - x_{t+1}\| \leq  2D_\phi \sqrt{\frac{1}{\alpha t}}.
+\]
+Hence, the decision path length is of $O(\sqrt{T})$. By the same analysis as for Consistent OGD (Theorem~\ref{prop:convex}), we get the following trade-off.
+\begin{theorem}[Consistent RFTL]
+    Using the same Poisson process intensity as of Consistent OGD, one has the following trade-off for Consistent RFTL, for every $\varepsilon \in [0, 1)$:
+   \[
+      \ev[\kappa_T] = O(T^{\frac{1}{2}+\frac{\varepsilon}{2}}),\quad \ev[\Rcal^{\mathrm{SOLO}}(T)] = O(T^{1-\frac{\varepsilon}{2}}).
+   \]
+ 
+\end{theorem}
 
+\section{Example: Experts Advice}\label{sec:experts}
+\textbf{TODO: bring up the experts problem\dots}
 This result, however, is sub-optimal, as compared to \citet{altschuler2018online}.
 

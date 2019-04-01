@@ -1,7 +1,7 @@
 \chapter{Preliminaries}
-Here we bring the preliminaries to this work, including some remarks about online learning, Poisson processes, and submodularity.
+In this chapter we bring the preliminaries to this work, including some remarks on online learning (Section~\ref{sec:onlinelearning}), Poisson processes (Section~\ref{sec:poisson}), and submodularity (Sections \ref{sec:submod} and \ref{sec:onlinesubmod}).
 
-\section{Online Learning}
+\section{Online Learning}\label{sec:onlinelearning}
 Many prediction problems can be represented as repeated games between a forecaster and the environment \citep{cesa2006prediction}, or a player and an adversary. In this representation, at round $t$, the player has to choose a strategy $x_t$ from a set of possible strategies $\Xcal$, and will incur the loss $f_t(x_t)$ from the adversary. This loss can be thought of as the `prediction error', which is defined naturally based on the environment, or some hand-crafted function depending on $x_t$, that the adversary imposes on the player. 
 
 There could be randomness involved in the player's strategy, as well as the adversary. For example, one setting is that the adversary knows the distribution on $\Xcal$ which the player is going to sample her strategy, but does not know the sample before choosing his loss. Another example would be the case that the adversary samples losses from a fixed distribution, unknown to the player, but not dependent on player's strategy.
@@ -9,15 +9,15 @@ Depending on the randomness and the adversary's knowledge, some settings are clo
 
 To measure the performance of the player, one needs to introduce a baseline. A seemingly easy notion is that of \emph{regret}, which one compares the accumulated loss up to round $T$ with the least possible loss in hindsight, following the best fixed strategy, that is,
 \begin{equation}\label{eq:regretdef}
-    R(T) = \sum_{t=1}^T f_t(x_t) - \min_{x^\star \in \Xcal} \sum_{t=1}^T f_t(x^\star).
+    \Rcal(T) = \sum_{t=1}^T f_t(x_t) - \min_{x^\star \in \Xcal} \sum_{t=1}^T f_t(x^\star).
 \end{equation}
 Notice that, in general, the player cannot compute the regret, as she needs access to all functions $f_1, \ldots, f_T$. But what one can do is to provide algorithms that provably get low regrets. Moreover, one may ask for more sophisticated baselines, rather than the ones playing with a fixed strategy. It turns out that even for this simple baseline, providing algorithms achieving low regret is nontrivial.
 
 One accepted notion of `low regret' is that of Hannan Consistency, that is, 
 \[
-    \limsup_{T\to\infty} \frac{R(T)}{T} \leq 0, \quad \text{a.s.},
+    \limsup_{T\to\infty} \frac{\Rcal(T)}{T} \leq 0, \quad \text{a.s.},
 \]
-where the probability space is defined for the random decisions of the player (and/or the adversary). In deterministic setting, we can write the condition as $R(T) = o(T)$ as $T\to\infty$. In the online learning community, it is customary to call a Hannan consistent algorithm, a \emph{no-regret} algorithm.
+where the probability space is defined for the random decisions of the player (and/or the adversary). In deterministic setting, we can write the condition as $\Rcal(T) = o(T)$ as $T\to\infty$. In the online learning community, it is customary to call a Hannan consistent algorithm, a \emph{no-regret} algorithm.
 
 \subsection{Online Convex Optimisation}
 One of the vastly studied settings in the online learning community is the convex setting, also called `Online Convex Optimisation'. In this setting, one assumes that $\Xcal$ is a compact convex subset of $\mathbb{R}^d$, and loss functions are convex. 
@@ -51,10 +51,10 @@ The following theorem proves that OGD suffers a sublinear regret, that is, it is
 \begin{theorem}[{\citet[Theorem 1]{zinkevich2003online}}]\label{thm:ogd} 
     Suppose $f_t\in C^1_L(\Xcal)$ and convex for all $t\in [T]$. Then Online Gradient Descent with step size $\eta_t = t^{-1/2}$ guarantees 
   \begin{equation}
-      R(T) \leq \frac{D^2\sqrt{T}}{2} + (\sqrt{T} - \tfrac{1}{2})L^2 = O(\sqrt{T}).
+      \Rcal(T) \leq \frac{D^2\sqrt{T}}{2} + (\sqrt{T} - \tfrac{1}{2})L^2 = O(\sqrt{T}).
     \label{eq:ogdregret}
   \end{equation}
-  In particular, one has $\limsup_{t\to\infty} R(T)/T \leq 0$. Therefore, OGD is a no-regret algorithm.
+  In particular, one has $\limsup_{t\to\infty} \Rcal(T)/T \leq 0$. Therefore, OGD is a no-regret algorithm.
 \end{theorem}
 \begin{proof}
     This proof follows Zinkevich's, and proceeds in three steps. First, we prove that replacing convex losses with their linear approximation gives an upper bound on the regret. Next, we deal with projection step, and finally, we prove the claim of the theorem.
@@ -80,7 +80,7 @@ By Projection Lemma (Lemma~\ref{lem:projection}), we have $\|x_{t+1} - x^\star\|
 \]
 The regret (for the functions $g_t$) is nothing else than the sum of left-hand-side over all~$t$. Hence, 
 \begin{align*}
-    R(T) &\leq \sum_{t=1}^T \inner{g_t}{x_t - x^\star} \\
+    \Rcal(T) &\leq \sum_{t=1}^T \inner{g_t}{x_t - x^\star} \\
          &\leq \sum_{t=1}^T \bigg(\frac{1}{2\eta_t}(\|x_t - x^\star\|^2 - \|x_{t+1} - x^\star\|^2) + \frac{\eta_t}{2} \|g_t\|^2\bigg) \\
          &= \frac{1}{2\eta_1}\|x_1 - x^\star\|^2 - \frac{1}{2\eta_T}\|x_{T+1} - x^\star\|^2 + \frac{1}{2}\sum_{t=2}^T \bigg(\frac{1}{\eta_t} - \frac{1}{\eta_{t-1}}\bigg)\|x_t - x^\star\|^2 + \frac{L^2}{2} \sum_{t=1}^T \eta_t \\
          &\leq D^2\left(\frac{1}{2\eta_1} +  \frac{1}{2}\sum_{t=2}^T \left(\frac{1}{\eta_t} - \frac{1}{\eta_{t-1}}\right)  \right) + \frac{L^2}{2} \sum_{t=1}^T \eta_t \\
@@ -88,7 +88,7 @@ The regret (for the functions $g_t$) is nothing else than the sum of left-hand-s
 \end{align*}
 As we chose $\eta_t = t^{-1/2}$, we can use the fact that $\sum_{t=1}^T t^{-1/2} \leq 2\sqrt{T} - 1$, and get
 \[
-    R(T) \leq \frac{1}{2}D^2\sqrt{T} + L^2(\sqrt{T} - \tfrac{1}{2}),
+    \Rcal(T) \leq \frac{1}{2}D^2\sqrt{T} + L^2(\sqrt{T} - \tfrac{1}{2}),
 \]
 as desired.
 \end{proof}
@@ -96,9 +96,9 @@ as desired.
 \begin{remark}
     It is worthwhile to mention that if $L$ and $D$ are known to the player in advance, he can choose a more accurate learning rate, $\eta_t = \frac{D}{L}t^{-1/2}$, and obtain the regret bound
 \[
-    R(T) \leq \frac{3}{2}DL\sqrt{T}.
+    \Rcal(T) \leq \frac{3}{2}DL\sqrt{T}.
 \]
-The proof is essentially the same, hence we exclude it. The intersted reader is referred to \citet{hazan2015} for a complete exposition.
+The proof is essentially the same, hence we exclude it. The intersted reader is referred to \citet{hazan2016introduction} for a complete exposition.
 \end{remark}
 
 If there are more restrictions to the function class, and the player knows those restrictions, it is possible to get better regret bounds. One such example is when the functions are \emph{strongly convex}.
@@ -126,11 +126,11 @@ The following theorem shows that if the step sizes for OGD are chosen properly, 
 \begin{theorem}[{\citet[Theorem 1]{hazan2007logarithmic}}]\label{thm:ogdsc}
     Assuming that $f_t$ are $L$-Lipschitz and $\alpha$-strongly convex, the OGD algorithm with step sizes $\eta_t = \frac{1}{\alpha t}$ achieves the following guarantee, for all $T > 1$.
     \[
-        R(T) \leq \frac{L^2}{2\alpha} (1+\log T) = O(\log T).
+        \Rcal(T) \leq \frac{L^2}{2\alpha} (1+\log T) = O(\log T).
     \]
 \end{theorem}
 
-\section{Poisson Processes}
+\section{Poisson Processes}\label{sec:poisson}
 Here we bring an introduction to Poisson processes. We omit some details and refer the reader to the excellent book by~\citet{kingman1992poisson}. 
 
 Let $(X, \Fcal)$ be a measurable space. A \emph{Poisson process} on $X$ is a random countable subset $\Pi$ of~$X$, such that
@@ -170,7 +170,7 @@ We finish this section with a useful lemma that we need later on.
     As mentioned before, the number of points of $\Pi$ inside $(a,b)$ follows a Poisson distribution with mean $\mu = \mu(a,b) = \int_a^b \lambda = M(b)-M(a)$. As a Poisson random variable $N$ has probability mass function $\prob{N=k} = e^{-\mu}\mu^k/k!$, we get the result by setting $k=0$.
 \end{proof}
 
-\section{Submodularity}
+\section{Submodularity}\label{sec:submod}
 Submodular functions are discrete analogs of convex functions. They arise naturally in many areas, such as the study of graphs, matroids, covering problems, and facility location problems. These functions are extensively studied in operations research and combinatorial optimization \citep{krause2012submodular}. Recently, submodular functions have proven to be key concepts in other areas such as machine learning, algorithmic game theory, and social sciences. As such, they have been applied to a host of important problems such as modeling valuation functions in combinatorial auctions, feature and variable selection \citep{krause05near}, data summarization \citep{lin2011class}, and influence maximization \citep{kempe}.
 
 \subsection{Basic Notions}\label{sec:basicnotions}
@@ -212,7 +212,7 @@ For \emph{any} subset of $V$, one can assing a number $r(A)$ called the \emph{ra
     is a matroid over $V$.
 \end{definition}
 
-A running example for a matroid is the \emph{$k$-uniform matroid}, which is the set of all subsets of size at most $k$, for some $k\in\NN$. Other important matroids, including the partition matroid, are of important use in applications, for which the reader is referred to \citet[Chapter II.2]{fujishige2005submodular}.
+A running example for a matroid is the \emph{$k$-uniform matroid}, which is the family of all subsets of size at most $k$, for some $k\in\NN$. Other important matroids, including the partition matroid, are of important use in applications, for which the reader is referred to \citet[Chapter II.2]{fujishige2005submodular}.
 
 
 \subsection{Continuous Extensions}\label{sec:extensions}
@@ -228,16 +228,19 @@ The Lov\'asz extension \citep{lovasz1983submodular} creates a connection between
     \]
 \end{definition}
 The importance of this extension resides in the following theorem.
-\begin{theorem}[{\cite[Proposition 4.1]{lovasz1983submodular}}]
+\begin{theorem}[{\citet[Proposition 4.1]{lovasz1983submodular}}]
     Let $f$ be any set function defined on subsets of $V$ and let $f_L$ be its Lov\'asz extension on the nonnegative vectors. Then $f$ is submodular if and only if $f_L$ is convex.
 \end{theorem}
 
 This theorem allows one to minimise the Lov\'asz extension efficiently (using, say, the Ellipsoid method), and hence find the minimum of a submodular function. Thus, submodular minimisation can be done in poly-time (see \citet{fujishige2005submodular} and references therein).
 
 \subsection{Submodular Maximisation and Multilinear Extension}
+Maximising a submodular function subject to matroid constraints is related to many important and interesting problems in combinatorial optimisation, including Max-Cut, Influence Maximisation, and Facility Location. One of the first main differences with submodular minimisation is the hardness of maximisation. Most of the problems in this class are NP-Hard. In some cases, there are tight approximation ratios available, an important one described in the theorem below.
 
-...... hardness.......
-
+\begin{theorem}[{\citet[Theorem 4.2]{nemhauser1978best}}]\label{thm:hardnesssubmod}
+    For the problem of maximising a monotone submodular function over the uniform matroid, no algorithm requiring a number of function values polynomial in $|V|$ has a performance measure that exceeds $(1-1/e)$. The Greedy algorithm is of $O(|V|^2)$ and has performance measure $1-1/e$.
+\end{theorem}
+Indeed, the Greedy algorithm gives the best approximation ratio one can get, according to the theorem above. However, maximising a monotone submodular function over a matroid cannot be solved using the Greedy algorithm, and one gets suboptimal ratios. The \emph{Continuous Greedy} algorithm \citep{Calinescu2011} solves this problem using a special extension.
 
 For a monotone submodular set function $f\from 2^V \to \RR_+$, a canonical extension to a smooth monotone submodular function (in the sense of Section~\ref{sec:contsubmod}) can be obtained as follows \citep{Calinescu2011}: For $x \in [0, 1]^n$, let $\hat{x}$ denote a random vector in $C_n$ where each coordinate $j$ is independently rounded to 1 with probability $x_j$ or 0 otherwise. We identify $\hat{x} \in C_n$ with a set $S \subseteq V$ whose indicator vector is $\hat{x} = \one_S$. Then, define
 \[
@@ -245,7 +248,7 @@ For a monotone submodular set function $f\from 2^V \to \RR_+$, a canonical exten
 \]
 We call $F$ the \emph{multilinear extension} of $f$.
 
-\begin{lemma}
+\begin{lemma}\label{lem:multiproperties}
     The multilinear extension of a monotone submodular set function $f$ is monotone and (continuous) submodular.
 \end{lemma}
 \begin{proof}
@@ -264,9 +267,39 @@ We call $F$ the \emph{multilinear extension} of $f$.
     where the last inequality follows from submodularity of $f$. Moreover, $\partial^2 F(x)/\partial x_i^2 = 0$. Thus, $F$ is continuous submodular (this also shows that $F$ is also DR-submodular, see Definition~\ref{def:dr}).
 \end{proof}
 
-\textbf{TODO: explain matroid polytope and the continuous greedy algorithm.}
+The Continuous Greedy algorithm, by maximising the multilinear extesion, obtains the following guarantee.
+\begin{theorem}[{\citet[Theorem 1.1]{Calinescu2011}}]
+    There is a randomized algorithm which gives a $(1-1/e)$-approximation (in expectation) to the problem $\max\{f(S) \mid S \in \Mcal\}$, where $f\from 2^V \to \RR_+$ is a monotone submodular function given by a value oracle, and $\Mcal$ is a matroid given by a membership oracle.
+\end{theorem}
 
-\subsection{Rounding} Here I shall explain the Swap-Rounding. \textbf{TODO: complete the picture and bring the theorem that one can maximise monotone submodular with matroid constraints\dots}
+\subsection{Rounding}\label{sec:rounding}
+The Continuous Greedy algorithm translates a discrete problem into a continuous problem. Let us first describe what is the `geometric' translation of a `combinatorial' matroid. 
+
+\begin{definition}[Matroid Polytope]
+    For a matroid $\Mcal$ over the ground set $V$, the matroid polytope is defined as 
+    \[
+        \Pcal(\Mcal) = \mathrm{conv}(\{\one_A \mid A \in \Mcal \}),
+    \]
+    or, equivalently \citep{edmonds2003submodular},
+    \[
+        \Pcal(\Mcal) = \{ x\in \RR^{V}_+ \mid \forall S\subseteq V, x(S) \leq r(S) \},
+    \]
+    where $x(S) = \sum_{j\in S}x_j$ and $r$ is the matroid rank function.
+\end{definition}
+The Continuous Greedy algorithm maximises the multilinear extension over the matroid polytope.
+
+After finding the optimum point of the multilinear extension, there is another stage which needs to be performed: the optimal point is not necessarily a vertex of the polytope (that is, a set), and one needs to \emph{round} the `continuous' solution to a `discrete' set. The Randomised Swap-Rounding procedure shows that rounding is possible, described in the following theorem.
+\begin{theorem}[{\citet[Theorem 1.4]{Chekuri2009}}]\label{thm:swaprounding}
+    Let $f$ be a monotone submodular function with marginal values in $[0, 1]$, and $F$ be its multilinear extension. Let $x\in \Pcal(\Mcal)$ be a point in a matroid polytope and $R$ a random independent set obtained from it by randomised swap rounding. Let $\mu_0 = F(x)$ and $\delta > 0$. Then
+    \[
+        \ev[f(R)] \geq \mu_0,
+    \]
+    and
+    \[
+        \prob{f(R) \leq (1-\delta)\mu_0} \leq e^{-\delta^2\mu_0/8}.
+    \]
+\end{theorem}
+Hence, rouding does not decrease the multilinear extension's value \emph{in expectation}, and this event happens with high probability.
 
 \subsection{Continuous Submodularity}\label{sec:contsubmod}
 The notion of submodularity we defined in Section~\ref{sec:basicnotions} can be extended to more general structures such as distributive lattices and continuous domains. Our goal in this section is to present some of such extensions to continuous domains \citep{bach2016submodular}.
@@ -334,18 +367,18 @@ Interestingly, a similar hardness result as for submodular set function maximisa
 
 
 
-\section{Online Submodular Maximisation}
+\section{Online Submodular Maximisation}\label{sec:onlinesubmod}
 
 As explained in previous sections, it is  NP-hard to find an optimal solution (in hindsight) for submodular maximisation problem. Thus, the usual notion of regret \eqref{eq:regretdef} is no longer meaningful, as no poly-time algorithm is going to achieve sublinear regret (unless P = NP). Instead,  we consider approximate no-regret algorithms: 
 \begin{definition}[No $\beta$-regret Algorithm]
     For a maximisation task, we call an algorithm $\Acal$ a \emph{no $\beta$-regret algorithm} for some $\beta < 1$ if for any sequence of functions $(f_t)_{t\in\NN}\subset \Hcal$ inside a function class $\Hcal$, with $f_t\from\Xcal\to\RR$, $\Acal$ produces a sequence of points $(x_t)_{t\in\NN}\subset \Xcal$ such that for any $T\in\NN$, the $\beta$-regret defined as
 \begin{equation}
-    R_\beta(T) := \beta\cdot\max_{x^\star\in\Xcal} \sum_{t=1}^T f_t(x^\star) - \sum_{t=1}^T f_t(x_t),
+    \Rcal_\beta(T) := \beta\cdot\max_{x^\star\in\Xcal} \sum_{t=1}^T f_t(x^\star) - \sum_{t=1}^T f_t(x_t),
   \label{eq:apprx-reg}
 \end{equation}
-is sublinear, that is, $R_\beta(T) = o(T)$.
+is sublinear, that is, $\Rcal_\beta(T) = o(T)$.
 \end{definition}
-In this setting, since the task is maximisation, we regard $f_t$ as \emph{utility} rather than a loss. We drop $\beta$ in $R_\beta$ if it is clear from the context.
+In this setting, since the task is maximisation, we regard $f_t$ as \emph{utility} rather than a loss. We drop $\beta$ in $\Rcal_\beta$ if it is clear from the context.
 
 For monotone DR-submodular functions, one can show that Online Gradient Ascent achieves sublinear $\frac{1}{2}$-regret. 
 \begin{theorem}[{\citet[Theorem 2]{chen18f}}]\label{thm:osmhalfreg}

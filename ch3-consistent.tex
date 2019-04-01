@@ -1,7 +1,7 @@
 \chapter{Consistent Algorithms}
-Our goal in this chapter will be to simultaneously achieve sublinear regret and minimize some notion of {\em consistency} cost. We first \dots (\textbf{TODO: complete the exposition here.})
+Our goal in this chapter will be to simultaneously achieve sublinear regret and minimise some notion of {\em consistency} cost. In Section~\ref{sec:cost} we define different notions of consistency and their intuitive effects on algorithms. Section~\ref{sec:decpath} defines a key element to our study, the decision path, and provides useful upper bounds used in the later sections. In Section~\ref{sec:towardsolo} we bring our main meta-algorithm, the Sticky Online Optimisation (SOLO), which is the core of this thesis. We analyse SOLO in Section~\ref{sec:analysis}, and study two main applications: OGD (Section~\ref{sec:ogdtradeoff}) and Online Submodular Maximisation (Section~\ref{sec:submodapplication}).
 
-\section{Consistency Cost}
+\section{Consistency Cost}\label{sec:cost}
 A possible notion for consistency cost is the number of times the player changes her decision in $T$ rounds, \ie,
 \begin{equation}\label{eq:consistencycostdef}
     \kappa_T := \sum_{t = 2}^T \mathbf{1}_{x_{t} \not= x_{t - 1}}.
@@ -20,7 +20,7 @@ Keeping each of these costs small\footnote{with a correct interpretation of smal
 
 In what follows, we take \eqref{eq:consistencycostdef} as the defintion of cosistency cost.
 
-\section{Decision Paths}
+\section{Decision Paths}\label{sec:decpath}
 Under the assumption of Lipschitz loss functions, upper bounds on regret can be obtained by bounding the amount one \emph{moves} in the decision space. This brings us to the notion of a \emph{decision path}.
 
 \begin{definition}[Decision Path]
@@ -76,7 +76,7 @@ For (ii), we have $\eta_t = \frac{1}{\alpha t}$ and
  \]
 \end{proof}
 
-\section{Towards No-Regret Consistent Algorithms}
+\section{Towards No-Regret Consistent Algorithms}\label{sec:towardsolo}
 
 In order to achieve a trade-off between regret and consistency, our algorithm will make use of a basic algorithm $\Acal$, such as OGD, and decide probabilistically at each time step whether to update the current solution point to $\Acal$'s proposal, or to stick to the one from the previous round. Intuitively, we want the updates to be more likely to happen if the current solution point is far away from the $\Acal$'s newly proposed point, but also less likely to happen as the algorithm proceeds and starts converging to a near-optimal solution. As in a Poisson process, the distribution of inter-arrival times is dependent on the \emph{length} of the interval, we will update the algorithm's solution whenever a specific point process on the padded decision path has a hit. 
 
@@ -94,7 +94,7 @@ Observe that this definition satisfies our desiderata from above. Suppose that t
 We formulate the above in Algorithm~\ref{alg:main_algo}, called Sticky Online Optimization (SOLO). 
 
 \begin{algorithm}[h!] 
-    \caption{Sticky OnLine Optimization (SOLO)}
+    \caption{Sticky OnLine Optimisation (SOLO)}
 \label{alg:main_algo}
 \begin{algorithmic}
   \STATE $\Acal$ is a no-regret algorithm
@@ -135,12 +135,12 @@ We analyze the regret of our algorithm as compared to $\Acal$.  Assume that $f_t
 
 The regret of SOLO is:
 \begin{align}
-    R^{\mathrm{SOLO}}(T) &= \sum_{t=1}^T f_t(y_t) - \min_{x^\star\in\Xcal}\sum_{t=1}^T f_t(x^\star) \label{eq:regretbound} \\
+    \Rcal^{\mathrm{SOLO}}(T) &= \sum_{t=1}^T f_t(y_t) - \min_{x^\star\in\Xcal}\sum_{t=1}^T f_t(x^\star) \label{eq:regretbound} \\
     &= \sum_{t=1}^T f_t(y_t) - \sum_{t=1}^T f_t(x_t) 
     +  \sum_{t=1}^T f_t(x_t) - \min_{x^\star\in\Xcal}\sum_{t=1}^T f_t(x^\star) \nonumber \\
-    &\leq L\sum_{t=1}^T \|y_t - x_t\| + R^\Acal(T), \nonumber
+    &\leq L\sum_{t=1}^T \|y_t - x_t\| + \Rcal^\Acal(T), \nonumber
   \end{align}
-where the last line is due to the Lipschitz continuity of $f_t$ and $R^\Acal(T)$ is the regret of $\Acal$. Letting $p(t) := \max\{m\leq t: m\text{ is an updating round} \}$ to be the latest updating round before round $t$, it is clear that $y_t = x_{p(t)}$. Using the triangle inequality and remembering that $\delta$ is increasing:
+where the last line is due to the Lipschitz continuity of $f_t$ and $\Rcal^\Acal(T)$ is the regret of $\Acal$. Letting $p(t) := \max\{m\leq t: m\text{ is an updating round} \}$ to be the latest updating round before round $t$, it is clear that $y_t = x_{p(t)}$. Using the triangle inequality and remembering that $\delta$ is increasing:
 \begin{align*}
   \|y_t - x_t\| &= \|x_t - x_{p(t)}\| \\
   &\leq \sum_{j = p(t)}^{t-1} \|x_{j+1}-x_j\| \\
@@ -155,7 +155,7 @@ The following proposition is now immediate:
 \begin{proposition}
 \label{thm:add-regret}
 \[
-    R^{\mathrm{SOLO}}(T) \leq  \Ecal_T +R^\Acal(T).
+    \Rcal^{\mathrm{SOLO}}(T) \leq  \Ecal_T +\Rcal^\Acal(T).
 \]
 \end{proposition}
 Observe that the extra regret depends directly on the length of the padded decision path. Thus by changing the intensity of the sampling process, we can get a trade-off between the number of changes, and the extra regret. 
@@ -273,7 +273,7 @@ Now by Lemma~\ref{lem:boundingintegral}, one gets the desired bound. Also, by li
 which finishes the proof.
 \end{proof}
 
-\section{Online Gradient Descent Trade-offs}
+\section{Online Gradient Descent Trade-offs}\label{sec:ogdtradeoff}
 We are now ready to specialize the general algorithm above to obtain our main results. First, we bring a regret-consistency trade-off for OGD for convex and strongly convex functions. Next, we provide trade-offs for online submodular maximisation.
 
 It remains to specialize $\delta$ and $\lambda$ to achieve our desired bounds. 
@@ -285,7 +285,7 @@ It remains to specialize $\delta$ and $\lambda$ to achieve our desired bounds.
   \]
   Then: 
   \[
-      \ev[\kappa_T] = O(T^{\frac{1}{2}+\frac{\varepsilon}{2}}),\quad \ev[R^{\mathrm{SOLO}}(T)] = O(T^{1-\frac{\varepsilon}{2}}).
+      \ev[\kappa_T] = O(T^{\frac{1}{2}+\frac{\varepsilon}{2}}),\quad \ev[\Rcal^{\mathrm{SOLO}}(T)] = O(T^{1-\frac{\varepsilon}{2}}).
   \]
 \end{theorem}
 \begin{proof}
@@ -297,9 +297,9 @@ It remains to specialize $\delta$ and $\lambda$ to achieve our desired bounds.
   \[
     \ev[\Ecal_T] \leq C'\sum_{t=1}^T t^{-{\frac{\varepsilon}{2}}} \leq C'' T^{1 - \frac{\varepsilon}{2}} = O(T^{1 - \frac{\varepsilon}{2}}).
   \]
-  By Theorem~\ref{thm:ogd}, we know that $R_\Acal(T) = O(\sqrt{T})$. Hence 
+  By Theorem~\ref{thm:ogd}, we know that $\Rcal_\Acal(T) = O(\sqrt{T})$. Hence 
   \[
-      \ev[R^{\mathrm{SOLO}}(T)] = O(T^{1 - \frac{\varepsilon}{2}}).
+      \ev[\Rcal^{\mathrm{SOLO}}(T)] = O(T^{1 - \frac{\varepsilon}{2}}).
   \]
 
   Finally, to bound $\kappa_T$, recall that the total path length from  Lemma~\ref{lem:ogdpathlength} (i), and the final padding of $\delta(T) = \sqrt{T}$.  Since $M(\tau)$ is increasing, we get
@@ -317,7 +317,7 @@ We can use a similar analysis in the strongly convex case.
   \]
   Then one has
   \[
-      \ev[\kappa_T] = O(T^{\varepsilon}),\quad \ev[R^{\mathrm{SOLO}}(T)] = O(T^{1-\varepsilon\frac{1}{\gamma}}).
+      \ev[\kappa_T] = O(T^{\varepsilon}),\quad \ev[\Rcal^{\mathrm{SOLO}}(T)] = O(T^{1-\varepsilon\frac{1}{\gamma}}).
   \]
 \end{theorem}
 \begin{proof}
@@ -336,37 +336,32 @@ We can use a similar analysis in the strongly convex case.
 \end{remark} 
 
 \section{Online Submodular Maximisation Trade-offs}\label{sec:submodapplication}
-In this section we show that a similar set of ideas apply to the problem of online submodular function maximisation. Note that in this case, due to hardness (see Section~\ref{}), our goal is to find trade-offs between approximate $\beta$-regret and consistency for different classes of submodular functions. We give examples for two special cases: monotone DR-submodular functions~\cite{bian2016guaranteed} and monotone submodular set functions~\cite{nemhauser1978analysis}. 
+In this section we show that a similar set of ideas apply to the problem of online submodular function maximisation. Note that in this case, due to hardness (see Theorem~\ref{thm:hardnesssubmod}), our goal is to find trade-offs between approximate $\beta$-regret and consistency for different classes of submodular functions. We give examples for two special cases: monotone DR-submodular functions~\cite{bian2016guaranteed} and monotone submodular set functions~\cite{nemhauser1978analysis}. 
 
  
 By selectively deciding when to update the solution, we transform it to an algorithm that suffers an extra regret of $O(T^{1-\frac{\varepsilon}{2}})$ in expectation, while updating at most $O(T^{\frac{\varepsilon + 1}{2}})$ times.
 
-We further extend the analysis to the discrete case, where the utility functions are submodular set functions and the optimization domain is a matroid $\Mcal$. Using the Swap-Rounding technique by ~\cite{Chekuri2009} to round the solutions of online gradient ascent algorithm, we get an algorithm  that achieves sublinear $\frac{1}{2}$-regret. We can then be selective on when to apply the updates to achieve additional additive regret of $T^{1 - \frac{\varepsilon}{2}}$ using at most $O(T^{\frac{\varepsilon + 1}{2}})$ updates. 
+We further extend the analysis to the discrete case, where the utility functions are submodular set functions and the optimisation domain is a matroid $\Mcal$. Using the Swap-Rounding technique (see Section~\ref{sec:rounding}) to round the solutions of online gradient ascent algorithm, we get an algorithm  that achieves sublinear $\frac{1}{2}$-regret. We can then be selective on when to apply the updates to achieve additional additive regret of $T^{1 - \frac{\varepsilon}{2}}$ using at most $O(T^{\frac{\varepsilon + 1}{2}})$ updates. 
 
 
-\paragraph{DR-Submodular case} 
-We can use our result to devise a consistent online DR-submodular maximization algorithm, using the simple fact that our regret analysis is additive with respect to $\Ecal_t$. Namely, if we add $\sum_{t=1}^T f_t(x_t) - \sum_{t=1}^T f_t(y_t)$ to \eqref{eq:halfreg-dr-subm}, we get the notion of $\frac{1}{2}$-regret for the sequence $(y_t)$. The rest of the analysis follows immediately: by being consistent, one suffers an extra regret of $O(T^{1-\frac{\varepsilon}{2}})$ in expectation, while updating at most $O(T^{\frac{\varepsilon + 1}{2}})$ times.
+\subsection*{DR-Submodular Case} 
+We can use our result to devise a consistent online DR-submodular maximisation algorithm, using the simple fact that our regret analysis is additive with respect to $\Ecal_t$. Namely, if we add $\sum_{t=1}^T f_t(x_t) - \sum_{t=1}^T f_t(y_t)$ to \eqref{eq:halfreg-dr-subm}, we get the notion of $\frac{1}{2}$-regret for the sequence $(y_t)$. The rest of the analysis follows immediately: by being consistent, one suffers an extra regret of $O(T^{1-\frac{\varepsilon}{2}})$ in expectation, while updating at most $O(T^{\frac{\varepsilon + 1}{2}})$ times.
 
-\paragraph{Monotone Submodular Functions} We now relate the DR-Submodular result to the discrete case, where the utility functions are submodular set functions and the optimization domain is a matroid $\Mcal$. 
+\subsection*{Monotone Submodular Case} We now relate the DR-Submodular result to the discrete case, where the utility functions are submodular set functions and the optimisation domain is a matroid $\Mcal$. 
 
-It is known (see \cite{Calinescu2011}) that for any non-negative monotone submodular function $F:2^V\to\RR_+$, where $V$ is a $d$-element set, the \emph{multilinear extension} $f:[0,1]^d\to\RR_+$ defined as 
-
-is DR-submodular.
-Also for a monotone submodular function $F$ with marginal values in $[0,1]$ and multilinear extension $f$, one can \emph{round} a continuous point to a set: Let $\Xcal$ be the matroid base polytope of $\Mcal$, \ie\ the convex hull of all the indicator vectors of bases of $\Mcal$. Given a point $x\in \Xcal$, Swap-Rounding \cite{Chekuri2009} returns a random element of $\Mcal$, say $R = \mathrm{round}_\Mcal(x)$, such that $\EE[F(R)] \geq f(x)$. 
-
-We now take the online stochastic setting, and also assume that in each round, the player can evaluate the multilinear extension of the submodular utility, as well as its gradients. With a few modifications of the consistent OGD algorithm, one can design an algorithm for this discrete case, as described in Algorithm~\ref{alg:submod_algo}.
+Taking the online stochastic setting, we assume that in each round, the player can evaluate the multilinear extension of the submodular utility, as well as its gradients. With a few modifications of the consistent OGD algorithm, one can design an algorithm for this discrete case, as described in Algorithm~\ref{alg:submod_algo}.
 
 \begin{algorithm}[ht] 
 \caption{Consistent Online Submodular Maximization}
 \label{alg:submod_algo}
 \begin{algorithmic}
-  \STATE $x_1 \leftarrow$ a point in $\Xcal$.
+    \STATE $x_1 \leftarrow$ a point in $\Xcal = \Pcal(\Mcal)$.
   \STATE $S_1 \leftarrow$ rounded set of $x_1$.
   \STATE $r_1 \leftarrow 0$.
 
   \FOR {$t \in [T]$}
-  \STATE Play $S_t$ and receive loss $F_t(S_t)$. 
-  \STATE $x_{t+1} \leftarrow \mathrm{Proj}_\Xcal(x_t + \eta_t \nabla f_t(x_t))$
+  \STATE Play $S_t$ and receive loss $f_t(S_t)$. 
+  \STATE $x_{t+1} \leftarrow \mathrm{Proj}_\Xcal(x_t + \eta_t \nabla F_t(x_t))$
   \STATE $r_{t+1} \leftarrow r_t + \|x_{t+1} - x_t\| + \sqrt{t+1} - \sqrt{t}$
   \STATE With probability $1 - \exp(-(r_{t+1}^{1+\varepsilon}- r_{t}^{1+\varepsilon}))$
   \STATE $\qquad$ Update: set $S_{t+1} \leftarrow \mathrm{round}_\Mcal(x_t)$.
@@ -375,22 +370,22 @@ We now take the online stochastic setting, and also assume that in each round, t
 \end{algorithmic}
 \end{algorithm}
 
-It is clear that the same bounds for consistency cost in the case of DR-Submodular functions holds for this algorithm as well. To provide the regret bounds, we first take the expectation w.r.t. the distribution induced by rounding, and then, w.r.t. the probability of updating. By the property of Swap-Rounding, for any sequence $y_1, \ldots, y_T \in \Xcal$ we have
+It is clear that the same bounds for consistency cost in the case of DR-submodular functions holds for this algorithm as well (note that the multilinear extension is DR-submodular, see Lemma~\ref{lem:multiproperties}). To provide the regret bounds, we first take the expectation w.r.t. the distribution induced by rounding, and then, w.r.t. the probability of updating. By the property of Swap-Rounding (Theorem~\ref{thm:swaprounding}), for any sequence $y_1, \ldots, y_T \in \Xcal$ we have
 \[
-    \EE_{S_t}[F_t(S_t)] \geq f_t(y_t)
+    \ev_{S_t}[f_t(S_t)] \geq F_t(y_t)
 \]
 Also, since sum of submodular functions is submodular and the multilinear extension is an extension, we have
 \[
-    \max_{x^\star\in \Xcal} \sum_{t=1}^T f_t(x^\star) \geq \max_{S^\star\in \Mcal} \sum_{t=1}^T F_t(S^\star).
+    \max_{x^\star\in \Xcal} \sum_{t=1}^T F_t(x^\star) \geq \max_{S^\star\in \Mcal} \sum_{t=1}^T f_t(S^\star).
 \]
 Therefore, by summing the inequalities we can get
 \begin{align*}
-    \frac{1}{2}\max_{x^\star\in \Xcal} \sum_{t=1}^T f_t(x^\star) - \sum_{t=1}^T f_t(y_t) \geq \EE\left\{ \frac{1}{2}\max_{S^\star\in \Mcal} \sum_{t=1}^T F_t(S^\star) - \sum_{t=1}^T F_t(S_t) \right\},
+    \frac{1}{2}\max_{x^\star\in \Xcal} \sum_{t=1}^T F_t(x^\star) - \sum_{t=1}^T F_t(y_t) \geq \ev\left\{ \frac{1}{2}\max_{S^\star\in \Mcal} \sum_{t=1}^T f_t(S^\star) - \sum_{t=1}^T f_t(S_t) \right\},
 \end{align*}
-which means that the expected value of $\frac{1}{2}$-regret for the discrete setting is upper bounded by the $\frac{1}{2}$-regret of the DR-Submodular setting. Taking expectation w.r.t. the probabilities of updates, gives the desired result.
+which means that the expected value of $\frac{1}{2}$-regret for the discrete setting is upper bounded by the $\frac{1}{2}$-regret of the DR-submodular setting. Taking expectation w.r.t. the probabilities of updates, gives the desired result.
 
 \begin{remark}
-    Note that we did not use the fact that the initial online algorithm has no $\frac{1}{2}$-regret. If the initial algorithm is in general a no $\beta$-regret algorithm, with a decision path length of $O(\sqrt{T})$, one gets the same result.
+    Note that we did not use the fact that the initial online algorithm is no $\frac{1}{2}$-regret. If the initial algorithm is in general a no $\beta$-regret algorithm with a decision path length of $O(\sqrt{T})$, one gets the same result.
 \end{remark} 
 
 

@@ -1,4 +1,4 @@
-\documentclass[12pt,a4paper]{amsbook}
+\documentclass[11pt,a4paper]{amsbook}
 
 \usepackage{amssymb}
 \usepackage{amsmath}
@@ -9,7 +9,7 @@
 
 \usepackage{Definitions}
 
-\usepackage[a4paper,twoside,vscale=.8,hscale=.75,nomarginpar,hmarginratio=1:1]{geometry}
+\usepackage[a4paper,twoside,vscale=.7,hscale=.75,nomarginpar,hmarginratio=1:1]{geometry}
 
 \usepackage{hyperref}
 \usepackage{pdfpages}
@@ -30,6 +30,7 @@
 \newtheorem{theorem}{Theorem}[chapter]
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
 
 \theoremstyle{definition}
 \newtheorem{definition}[theorem]{Definition}
@@ -50,13 +51,15 @@
 \newcommand{\note}[1]{\textit{\color{cyan}Note: #1}}
 \newcommand{\projon}[2]{\operatorname{Proj}_{#1}(#2)}
 \newcommand{\proj}[1]{\operatorname{Proj}(#1)}
-\setcounter{tocdepth}{2}
+\setcounter{tocdepth}{1}
 
 \newcommand{\simplex}{\Delta}
 \newcommand{\grad}{\nabla}
 
 \usepackage[round]{natbib}
 \setcitestyle{authoryear,open={(},close={)}}
+
+\linespread{1.1}
 
 \begin{document}
 \frontmatter
@@ -79,7 +82,8 @@
 \begin{center}
     To Ali,\\[2pt]
     the shining star in the darkness,\\[2pt]
-    and to my family, for their constant support.
+    and to my family,\\[2pt]
+    for their constant support.
 \end{center}
 \cleardoublepage
 
