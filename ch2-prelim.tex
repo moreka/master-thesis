@@ -1,32 +1,32 @@
 \chapter{Preliminaries}
-In this chapter we bring the preliminaries to this work, including some remarks on online learning (Section~\ref{sec:onlinelearning}), Poisson processes (Section~\ref{sec:poisson}), and submodularity (Sections \ref{sec:submod} and \ref{sec:onlinesubmod}).
+In this chapter we bring the preliminaries to this work. This includes some remarks on online learning and online convex optimisation (Section~\ref{sec:onlinelearning}), Poisson processes (Section~\ref{sec:poisson}), and submodularity (Sections \ref{sec:submod} and \ref{sec:onlinesubmod}).
 
 \section{Online Learning}\label{sec:onlinelearning}
-Many prediction problems can be represented as repeated games between a forecaster and the environment \citep{cesa2006prediction}, or a player and an adversary. In this representation, at round $t$, the player has to choose a strategy $x_t$ from a set of possible strategies $\Xcal$, and will incur the loss $f_t(x_t)$ from the adversary. This loss can be thought of as the `prediction error', which is defined naturally based on the environment, or some hand-crafted function depending on $x_t$, that the adversary imposes on the player. 
+Many prediction problems can be represented as repeated games between a forecaster and the environment \citep{cesa2006prediction}, or a player and an adversary. In this representation, at round $t$, the player has to choose a strategy $x_t$ from a set of possible strategies $\Xcal$, and will incur the loss $f_t(x_t)$ from the adversary. This loss can be thought of as the `prediction error', which is defined naturally based on the environment, or some hand-crafted function depending on $x_t$ that the adversary imposes on the player. 
 
-There could be randomness involved in the player's strategy, as well as the adversary. For example, one setting is that the adversary knows the distribution on $\Xcal$ which the player is going to sample her strategy, but does not know the sample before choosing his loss. Another example would be the case that the adversary samples losses from a fixed distribution, unknown to the player, but not dependent on player's strategy.
-Depending on the randomness and the adversary's knowledge, some settings are closer to the situation of game playing, and some settings are closer to that of learning. We will go through the main results about game theoretic understanding of online learning in a later chapter. In this work, we only focus on the setting where the player is faced with an adversary, and her actions are deterministic.
+There could be randomness involved in the player's strategy, as well as the adversary's choice of loss function. For example, one setting is that the adversary knows the distribution on $\Xcal$ which the player is going to sample her strategy, but does not know the sample before choosing his loss. Another example would be the case that the adversary samples losses from a fixed distribution, unknown to the player, but not dependent on player's strategy.
+Depending on the randomness and the adversary's knowledge, some settings are closer to the situation of game playing, and some settings are closer to that of learning. 
 
-To measure the performance of the player, one needs to introduce a baseline. A seemingly easy notion is that of \emph{regret}, which one compares the accumulated loss up to round $T$ with the least possible loss in hindsight, following the best fixed strategy, that is,
+To measure the performance of the player, one needs to introduce a baseline. A seemingly easy notion is that of the \emph{regret}, which one compares the accumulated loss up to round $T$ with the least possible loss in hindsight, by following the best fixed strategy, that is,
 \begin{equation}\label{eq:regretdef}
     \Rcal(T) = \sum_{t=1}^T f_t(x_t) - \min_{x^\star \in \Xcal} \sum_{t=1}^T f_t(x^\star).
 \end{equation}
-Notice that, in general, the player cannot compute the regret, as she needs access to all functions $f_1, \ldots, f_T$. But what one can do is to provide algorithms that provably get low regrets. Moreover, one may ask for more sophisticated baselines, rather than the ones playing with a fixed strategy. It turns out that even for this simple baseline, providing algorithms achieving low regret is nontrivial.
+Notice that, in general, the player cannot compute the regret, as she needs access to all functions $f_1, \ldots, f_T$ to find the \emph{offline} optimum on the right hand side of \eqref{eq:regretdef}. However, one can provide algorithms that provably get low regrets. Moreover, one may ask for more sophisticated baselines, rather than the ones playing with a fixed strategy. It turns out that even for this simple baseline, providing algorithms achieving low regret is nontrivial.
 
-One accepted notion of `low regret' is that of Hannan Consistency, that is, 
+One accepted notion of a `low regret' is that of Hannan Consistency, that is expressed as the condition
 \[
     \limsup_{T\to\infty} \frac{\Rcal(T)}{T} \leq 0, \quad \text{a.s.},
 \]
-where the probability space is defined for the random decisions of the player (and/or the adversary). In deterministic setting, we can write the condition as $\Rcal(T) = o(T)$ as $T\to\infty$. In the online learning community, it is customary to call a Hannan consistent algorithm, a \emph{no-regret} algorithm.
+where the probability space is defined for the random decisions of the player (and/or the adversary). A weaker condition can be stated in expectation, that is, when $\ev[\Rcal(T)] = o(T)$ as $T\to\infty$. In the online learning community, it is customary to call a Hannan consistent algorithm, a \emph{no-regret} algorithm.
 
 \subsection{Online Convex Optimisation}
 One of the vastly studied settings in the online learning community is the convex setting, also called `Online Convex Optimisation'. In this setting, one assumes that $\Xcal$ is a compact convex subset of $\mathbb{R}^d$, and loss functions are convex. 
 
-Let us put a norm $\|\cdot\|$ on $\RR^d$, and let $\|\cdot\|_\star$ denote its dual norm, \ie
+Let us put a norm $\|\cdot\|$ on $\RR^d$, and let $\|\cdot\|^\star$ denote its dual norm, \ie
 \[
-    \|x\|_\star = \sup \{ z^\top x : \|z\| \leq 1 \}.
+    \|x\|^\star = \sup \{ z^\top x : \|z\| \leq 1 \}.
 \]
-We denote by $C^1_{L}(\Xcal)$ the set of real-valued continuously differentiable functions defined over $\Xcal$ that are Lipschitz continuous with constant~$L$, \ie, $\|\nabla f(x)\|_\star \leq L$ for all $x\in \Xcal$. This is equivalent to say that for all $x, y\in \Xcal$, we have
+We denote by $C^1_{L}(\Xcal)$ the set of real-valued continuously differentiable functions defined over $\Xcal$ that are Lipschitz continuous with constant~$L$, \ie, $\|\nabla f(x)\|^\star \leq L$ for all $x\in \Xcal$. This is equivalent to say that for all $x, y\in \Xcal$, we have
 \[
     |f(x) - f(y)| \leq L\cdot\|x-y\|.
 \]
@@ -47,7 +47,7 @@ If the gradient of $f_t$ is revealed to the player at the end of round $t$, then
     \ENDFOR
 \end{algorithmic}
 \end{algorithm}
-The following theorem proves that OGD suffers a sublinear regret, that is, it is a no-regret algorithm.
+The following theorem proves that OGD suffers a sublinear regret. In other words, OGD is a no-regret algorithm.
 \begin{theorem}[{\citet[Theorem 1]{zinkevich2003online}}]\label{thm:ogd} 
     Suppose $f_t\in C^1_L(\Xcal)$ and convex for all $t\in [T]$. Then Online Gradient Descent with step size $\eta_t = t^{-1/2}$ guarantees 
   \begin{equation}
@@ -160,7 +160,7 @@ Thus, we observe that $M$ is an increasing function and
 \] 
 
 We finish this section with a useful lemma that we need later on.
-\begin{lemma}
+\begin{lemma}\label{lem:updatepoisson}
     Let $\Pi = \{X_1, X_2, \ldots\}$ be a Poisson process on $(0, \infty)$ with intensity $\lambda$, and $M$ be as above. Then, for $0<a<b$, the probability that $\Pi \cap (a,b)$ is empty equals
     \[
         \prob{\Pi \cap (a,b) = \varnothing} = e^{-(M(b) - M(a))}.
@@ -195,7 +195,7 @@ In optimisation problems related to set function, as in continuous optimisation,
         \item If $A, B\in\Mcal$ with $|A| > |B|$, then there exists an element $x\in A\setminus B$ such that $B + x \in \Mcal$.
     \end{enumerate}
 \end{definition}
-Usually the elements of a matroid are called \emph{independent sets}. The maximal elements of a matroid are of importance, and are called \emph{bases} of the matroid. One can prove that the size of all basis elements of a matroid are the same (called the \emph{rank} of the matroid).
+Usually the elements of a matroid are called \emph{independent sets}. The maximal elements of a matroid are of importance, and are called \emph{bases} of the matroid. One can prove that the cardinality of all basis elements of a matroid are the same (called the \emph{rank} of the matroid).
 
 For \emph{any} subset of $V$, one can assing a number $r(A)$ called the \emph{rank of $A$}, which is the size of the largest independent set $B\subseteq A$. An interesting result in matroid theory states that the rank function of a matroid is submodular. Moreover, this gives an alternative defintion of a matroid, as follows.
 
@@ -207,7 +207,7 @@ For \emph{any} subset of $V$, one can assing a number $r(A)$ called the \emph{ra
     \end{enumerate}
     Then, the set 
     \[
-        \{ A\subseteq V \mid r(A) = |A|\}
+        \Mcal = \{ A\subseteq V \mid r(A) = |A|\}
     \]
     is a matroid over $V$.
 \end{definition}
@@ -217,7 +217,7 @@ A running example for a matroid is the \emph{$k$-uniform matroid}, which is the 
 
 \subsection{Continuous Extensions}\label{sec:extensions}
 
-The idea of relaxing a combinatorial problem to a continuous optimisation problem, and translating the continuous solution back to a combinatorial solution (i.e. \emph{rounding}) is ubiquitous in combinatorial optimisation community. Likewise, for submodular set functions, one may look for \emph{extensions} to continuous domains. In what follows, we introduce the \emph{Lov\'asz extension}, and in the next section we introduce the \emph{multilinear extension}, which both are studied extensively in submodularity community and are related to this thesis.
+The idea of relaxing a combinatorial problem to a continuous optimisation problem, and translating the continuous solution back to a combinatorial solution (i.e. \emph{rounding}) is ubiquitous in combinatorial optimisation community. Likewise, for submodular set functions, one may look for \emph{extensions} to continuous domains. In what follows, we introduce the \emph{Lov\'asz extension}, and in the next section we introduce the \emph{multilinear extension},  both of which are studied extensively in submodularity community and are related to this thesis.
 
 The Lov\'asz extension \citep{lovasz1983submodular} creates a connection between submodular functions and convex functions, and thus, is helpful for submodular minimisation. 
 
@@ -235,7 +235,7 @@ The importance of this extension resides in the following theorem.
 This theorem allows one to minimise the Lov\'asz extension efficiently (using, say, the Ellipsoid method), and hence find the minimum of a submodular function. Thus, submodular minimisation can be done in poly-time (see \citet{fujishige2005submodular} and references therein).
 
 \subsection{Submodular Maximisation and Multilinear Extension}
-Maximising a submodular function subject to matroid constraints is related to many important and interesting problems in combinatorial optimisation, including Max-Cut, Influence Maximisation, and Facility Location. One of the first main differences with submodular minimisation is the hardness of maximisation. Most of the problems in this class are NP-Hard. In some cases, there are tight approximation ratios available, an important one described in the theorem below.
+Maximising a submodular function subject to matroid constraints is related to many important and interesting problems in combinatorial optimisation, including Max-Cut, Influence Maximisation, and Facility Location. One of the first main differences with submodular minimisation is the hardness of maximisation. Most of the problems in this class are NP-Hard. In some cases, there are tight approximation ratios available. Sn important hardness result is described in the theorem below.
 
 \begin{theorem}[{\citet[Theorem 4.2]{nemhauser1978best}}]\label{thm:hardnesssubmod}
     For the problem of maximising a monotone submodular function over the uniform matroid, no algorithm requiring a number of function values polynomial in $|V|$ has a performance measure that exceeds $(1-1/e)$. The Greedy algorithm is of $O(|V|^2)$ and has performance measure $1-1/e$.
@@ -273,7 +273,7 @@ The Continuous Greedy algorithm, by maximising the multilinear extesion, obtains
 \end{theorem}
 
 \subsection{Rounding}\label{sec:rounding}
-The Continuous Greedy algorithm translates a discrete problem into a continuous problem. Let us first describe what is the `geometric' translation of a `combinatorial' matroid. 
+The Continuous Greedy algorithm translates a discrete problem to a continuous problem. Let us first describe what is the `geometric' translation of a `combinatorial' matroid. 
 
 \begin{definition}[Matroid Polytope]
     For a matroid $\Mcal$ over the ground set $V$, the matroid polytope is defined as 
@@ -346,7 +346,7 @@ We bring some examples of submodular functions.
     \item The Lov\'asz extension of a submodular set function $f$ (defined in Section~\ref{sec:extensions}) is always convex and submodular. Also, the multilinear extension of $f$ is submodular, but neither convex nor concave in general.
 \end{itemize}
 
-The careful reader should have noticed by now that the notion of continuous submodularity only generalises \eqref{eq:submoddefn}. One may ask, is there a similar property implied from continuous submodularity analoguos to \eqref{eq:dimret}? The general answer is no \cite{soma2014optimal}. This motivated \citet{bian2016guaranteed} to define a subclass of continuous submodular functions, known as DR-submodular functions, that resemble the DR property. 
+The careful reader should have noticed by now that the notion of continuous submodularity only generalises \eqref{eq:submoddefn}. One may ask, is there a similar property implied from continuous submodularity analoguos to \eqref{eq:dimret}? The general answer is no \citep{soma2014optimal}. This motivated \citet{bian2016guaranteed} to define a subclass of continuous submodular functions, known as DR-submodular functions, that resemble the DR property. 
 
 \begin{definition}[DR-submodular Function]\label{def:dr}
     A continuous function $f\from \Xcal \to \RR$ is called DR-submodular if for all $a\leq b \in \Xcal$, all $i\in V$, and all $r\in\RR_+$ such that $a + re_i \in \Xcal$ and $b+re_i\in\Xcal$, it holds
@@ -369,7 +369,7 @@ Interestingly, a similar hardness result as for submodular set function maximisa
 
 \section{Online Submodular Maximisation}\label{sec:onlinesubmod}
 
-As explained in previous sections, it is  NP-hard to find an optimal solution (in hindsight) for submodular maximisation problem. Thus, the usual notion of regret \eqref{eq:regretdef} is no longer meaningful, as no poly-time algorithm is going to achieve sublinear regret (unless P = NP). Instead,  we consider approximate no-regret algorithms: 
+As explained in previous sections, it is  NP-hard to find an optimal solution (in hindsight) for a submodular maximisation task. Thus, the usual notion of regret \eqref{eq:regretdef} is no longer meaningful, as no poly-time algorithm is going to achieve sublinear regret (unless P = NP). Instead,  we consider approximate no-regret algorithms: 
 \begin{definition}[No $\beta$-regret Algorithm]
     For a maximisation task, we call an algorithm $\Acal$ a \emph{no $\beta$-regret algorithm} for some $\beta < 1$ if for any sequence of functions $(f_t)_{t\in\NN}\subset \Hcal$ inside a function class $\Hcal$, with $f_t\from\Xcal\to\RR$, $\Acal$ produces a sequence of points $(x_t)_{t\in\NN}\subset \Xcal$ such that for any $T\in\NN$, the $\beta$-regret defined as
 \begin{equation}
@@ -393,6 +393,6 @@ We close this section with two remarks.
     Theorem~\ref{thm:osmhalfreg} also holds when one uses stochastic gradients, and the result holds in expectation. This is especially useful when $f_t$ are defined as expectations (thus, hard to compute), and one can easily sample from the distribution over the gradients. 
 \end{remark}
 \begin{remark}
-    In work by \citep{chen2018projection}, a projection-free no $(1-1/e)$-regret algorithm is provided. However, in this thesis we only analyse the OGD algorithm's performance due to its simplicity. The interested reader is referred to Remark~\ref{rem:lengthasymp} for further discussion.
+    In work by \citep{chen2018projection}, a projection-free no $(1-1/e)$-regret algorithm is provided. However, in this thesis we only analyse the performance of the OGD version due to its simplicity. The interested reader is referred to Remark~\ref{rem:lengthasymp} for further discussions.
 \end{remark}
  

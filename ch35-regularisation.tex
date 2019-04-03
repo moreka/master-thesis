@@ -202,7 +202,18 @@ Hence, the decision path length is of $O(\sqrt{T})$. By the same analysis as for
  
 \end{theorem}
 
-%\section{Example: Experts Advice}\label{sec:experts}
-%\textbf{TODO: bring up the experts problem\dots}
-%This result, however, is sub-optimal, as compared to \citet{altschuler2018online}.
+\section{Example: Experts Advice}\label{sec:experts}
+The problem of learning from experts' advice has a long history in online learning community. There are known online algorithms that obtain optimal regret bounds. In this section, we explore the problem, the RFTL approach to this problem, and show how the result from this chapter can be applied.
 
+Assume a decision maker has to choose among the advice of a set of $n$ experts, and at each round, after making her choice, she gets a loss according to her choice. One can also consider the case that she chooses a \emph{distribution} over the advices, incurring an expected cost: if the cost for each advice is encoded in a vector $f_t\in [0,1]^n$, and the distribution is $x_t\in\simplex$, the expected incurred loss is $\inner{f_t}{x_t}$, where $\simplex$ is the $n$-simplex.
+
+We consider a general situtaion, where the cost functions are differentiable functions $f_t\from \simplex \to [0,1]$, and are Lipschitz continuous with respect to $\ell_1$ norm, that is, for all $x\in\simplex$ and all $t\in[T]$ we have $\| \grad f_t(x) \|_\infty \leq L$ (note that the dual norm to $\ell_1$ is  $\ell_\infty$). We use the following regulariser
+\[
+    \phi\from \simplex\to\RR,\quad \phi(x) = \sum_{i=1}^n x_i\log x_i,
+\]
+known as the \emph{negative entropy} regulariser. Note that this regulariser is 1-strongly convex on the simplex with respect to $\ell_1$ norm. Also, for this regulariser, the diameter $D_\phi$ is equal to $\sqrt{\log n}$. Thus the bound given by RFTL becomes
+\[
+    \Rcal(T) \leq 2D_\phi L \sqrt{2T} = 2L\sqrt{2\log n\cdot T}.
+\]
+Thus, we can get a consistent RFTL for this problem, getting constants which are not dependent on $n$. This result, however, is sub-optimal, as compared to \citet{altschuler2018online}.
+Another proof, specialised for this problem, to get such bounds is provided in Appendix~\ref{app:experts}.

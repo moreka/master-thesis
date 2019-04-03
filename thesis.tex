@@ -61,6 +61,9 @@
 
 \linespread{1.1}
 
+\addto\captionsenglish{\renewcommand{\bibname}{References}}
+
+
 \begin{document}
 \frontmatter
 
@@ -71,23 +74,16 @@
 %    Information for first author
 \author{Mohammad Reza Karimi Jaghargh}
 %    Address of record for the research reported here
-\address{Learning and Adaptive Systems Group, Computer Science Department, ETH Z\"urich}
+\address{ETH Z\"urich, Switzerland}
 %    Current address
 \email{mkarimi@ethz.ch}
 \maketitle
 
-\cleardoublepage
-\thispagestyle{empty}
-\vspace*{13.5pc}
-\begin{center}
-    To Ali,\\[2pt]
-    the shining star in the darkness,\\[2pt]
-    and to my family,\\[2pt]
-    for their constant support.
-\end{center}
-\cleardoublepage
+\begin{abstract}
+    Modern online learning algorithms achieve low (sublinear) regret in a variety of diverse settings. These algorithms, however, update their solution at every time step. While these updates are computationally efficient, the very requirement of frequent updates makes the algorithms untenable in practical applications where the change of solution is costly. In this work, we develop online learning algorithms that update their solution a sublinear number of times. We give a meta-algorithm based on non-homogeneous Poisson processes that gives a smooth trade-off between the regret and frequency of updates. Empirically, we show that in our two real-world examples, one can significantly reduce updates at a minimal increase in the regret.
+\end{abstract}
 
-\setcounter{page}{5}
+\setcounter{page}{4}
 \tableofcontents
 
 \mainmatter

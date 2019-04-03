@@ -1,2 +1,11 @@
 \chapter{Conclusion and Outlook}
 
+In this thesis, we presented the Sticky Online Optimisation (SOLO) meta-algorithm, which one can use on top of different online learning algorithms to obtain consistency. If the distance moved in the decision space up to any time (\ie, the decision path length) has a meaningful asymtotic growth, and if the loss functions are Lipschitz continuous, we observe that it is possible to obtain consistency alongside sublinear regret. We proved several trade-off theorems regarding different online optimisation problems, including online convex optimisation, online submodular maximisation, and regularised follow the leader. We demonstrated experimental results on two real-world datasets and showed that our meta-algorithm performs well in terms of both consistency and regret. We also believe that the machinery used in our proof (\eg, considering the decision path and using Poisson processes) is also enlightening, and opens up new ways of thinking about online learning algorithms.
+
+\specialsection*{Future Work}
+Although the results we get are somehow optimal in the sense of the analysis we provide (see Theorem~\ref{thm:optimality}), there is no lower-bound type of theorem available in this thesis. One can see from the experimental results that the theoretical regret bounds we get for consistent algorithms are far worse than one gets in practice. This observation brings up this question that whether it is possible to improve bounds in this thesis or not.
+
+Also, in special cases such as the experts algorithms, where one enjoys a finite set of experts as the decision space, there are asymptotically better bounds for both consistency and regret. One can pose the question whether this discrepancy is due to finiteness, or our analysis. 
+
+Another possible extension to this problem can be the following: in our method, we used the underlying online learning algorithm as a \emph{black box} and queried only one gradient from the oracle. One can ask, in the situation where there is a possibility of asking more questions from the oracle, that is it possible to find a different criteria for updating, rather than the decision path length?
+
