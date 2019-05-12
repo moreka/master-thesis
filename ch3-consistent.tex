@@ -151,14 +151,15 @@ This gives rise to the definition of \emph{extra regret}: we define the extra re
 \begin{equation}\label{eq:extraregret}
   \Ecal_T = L\cdot\sum_{t=1}^T (r_t - r_{p(t)}).
 \end{equation}
-The following proposition is now immediate: 
+The following proposition is now immediate.
 \begin{proposition}
 \label{thm:add-regret}
+The regret of SOLO is upper bounded by the sum of the regret of the base algorithm $\Acal$, and the extra regret $\Ecal_T$, that is,
 \[
     \Rcal^{\mathrm{SOLO}}(T) \leq  \Ecal_T +\Rcal^\Acal(T).
 \]
 \end{proposition}
-Observe that the extra regret depends directly on the length of the padded decision path. Thus by changing the intensity of the sampling process, we can get a trade-off between the number of changes, and the extra regret. 
+Observe that the extra regret depends directly on the length of the padded decision path. Thus, by changing the intensity of the sampling process, we can get a trade-off between the number of changes, and the extra regret. 
 %So for having a no-regret algorithm, one requires a sublinear extra regret. Note that in our discussion, the extra regret $\Ecal_N$ along with $\Rcal_N$, $y_n$ and $p(n)$ are random variables and by sublinearity we mean having sublinear expected values.
 
 \subsection{Extra Regret} 
@@ -333,8 +334,8 @@ We can use a similar analysis in the strongly convex case.
     The reader should be convinced by now that for any online algorithm that has well-behaved asymptotic decision path length, one can use the SOLO algorithm using the right intensity function $\lambda$, and get a consistency/regret trade-off. Thus, a key element in using SOLO as an add-on to an online algorithm is to analyse the decision path length's asymptotics.
 \end{remark}
 
-To further show the extent of freedom in choosing $\lambda$, we bring another theorem on another type of trade-off for standard OGD.
-\begin{theorem}[Consistent OGD, II]
+To further show the extent of freedom in choosing $\lambda$, we bring a corollary for another type of trade-off regarding standard OGD.
+\begin{corollary}[Consistent OGD, II]
    Let $f_t\in C^1_L(\Xcal)$ be convex for all $t\in[T]$. Let $\delta_t = \sqrt{t}$, and denote by $(r_t)$ the padded decision path. Set
   \[
       \lambda(\tau) := \log(1+\tau) + \frac{\tau}{1+\tau}, \quad M(\tau) = \tau\log(1 + \tau).
@@ -343,7 +344,7 @@ To further show the extent of freedom in choosing $\lambda$, we bring another th
   \[
       \ev[\kappa_T] = \tilde{O}(\sqrt{T}),\quad \ev[\Rcal^{\mathrm{SOLO}}(T)] = O(T/\sqrt{\log T}) = o(T).
   \]
-\end{theorem}
+\end{corollary}
 \begin{proof}
     It is easy to verify that $\lambda$ and $M$ satisfy the conditions of Proposition~\ref{lem:bndextraregret}.  Following the same line of proof as Theorem~\ref{prop:convex}, we arrive at 
     \[
@@ -373,8 +374,8 @@ To further show the extent of freedom in choosing $\lambda$, we bring another th
     \]
 \end{proof}
 
-One can also show that, given our analysis, the results above are optimal. This is explained for OGD (Theorem~\ref{prop:convex}) below. Thus, better results cannot be obtained by changing $\lambda$, if we keep the analysis untouched.
-\begin{theorem}[OGD Optimality]\label{thm:optimality} Let $\lambda$ be an intensity function that satisfies the conditions of Proposition~\ref{lem:bndextraregret}. Assuming the same analysis and using integral approximations, SOLO on top of OGD results in an  algorithm which satisfies
+One can also show that, given our analysis, the results above are optimal. This is explained for OGD (Theorem~\ref{prop:convex}) below. In another words, better results cannot be obtained by changing $\lambda$, if we keep the analysis untouched.
+\begin{theorem}[Optimal Tradeoff]\label{thm:optimality} Let $\lambda$ be an intensity function that satisfies the conditions of Proposition~\ref{lem:bndextraregret}. Assuming the same analysis and using integral approximations, SOLO on top of OGD results in an  algorithm which satisfies
     \[
         \widehat{\kappa_T}\cdot \widehat{\Ecal_T} = \Omega(T^{3/2}),
     \]

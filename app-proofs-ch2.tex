@@ -38,7 +38,7 @@ The Exponentiated Gradient algorithm gives sublinear regret, as stated in the fo
     \]
 \end{theorem}
 
-We now note that the points $x_t$ does not move that fast in $\simplex$. By Pinsker's inequality, we have
+We now prove that the points $x_t$ do not move that fast in $\simplex$. By Pinsker's inequality, we have
 \[
     2\|x_{t+1} - x_t\|_1^2 \leq \mathrm{KL}(x_{t+1}\|x_t).
 \]
@@ -60,8 +60,9 @@ Thus, it suffices to bound the KL divergence between $x_{t+1}$ and $x_t$. For si
         \log Z &= \log \sum_{i=1}^n x_{t,i} \cdot e^{-\eta \grad_{t,i}} \\
                &\leq \log \sum_{i=1}^n x_{t,i}\cdot (1 - \eta\grad_{t,i} + \eta^2(\grad_{t,i})^2) \\
                &\leq \log (1 - \eta\inner{x_t}{\grad_t} + \eta^2G_\infty^2) \\
-               &\leq - \eta\inner{x_t}{\grad_t} + \eta^2G_\infty^2 \qedhere
+               &\leq - \eta\inner{x_t}{\grad_t} + \eta^2G_\infty^2,
     \end{align*}
+    where the last inequality is due to the fact that $\log (1+x) \leq x$ for $x \geq 0$.
 \end{proof}
 
 Now by the lemma we get our desired result. In summary, we have the following.

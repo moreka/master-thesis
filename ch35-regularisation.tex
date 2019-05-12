@@ -185,7 +185,7 @@ The careful reader may have noticed that the step size $\eta$ is fixed in the an
     Consider an algorithm $\Acal$ that enjoys a regret bound of the form $C\sqrt{T}$, but its parameters (such as $\eta$) require the knowledge of $T$. By running $\Acal$ on the $2^m$ rounds $t = 2^m,\ldots,2^{m+1} -1$ for $m\in \NN$, $\Acal$ does not need to know the time horizon, and the regret of this new algorithm is at most $\frac{\sqrt{2}}{\sqrt{2} - 1}C\sqrt{T}$.
 \end{lemma}
 
-It follows from the lemma above and Theorem~\ref{thm:rftl}, that using the Doubling Trick, we can assume that 
+It follows from the lemma above and Theorem~\ref{thm:rftl} that, using the Doubling Trick, we can assume 
 \[
     \frac{D_\phi}{L} \sqrt{\alpha/2}\cdot t^{-1/2} \leq \eta_t \leq \frac{D_\phi}{L} \sqrt{\alpha} \cdot t^{-1/2}.
 \]
@@ -202,6 +202,8 @@ Hence, the decision path length is of $O(\sqrt{T})$. By the same analysis as for
  
 \end{theorem}
 
+We bring a popular instance of RFTL in the following section, and show how one can get consistency in that instance.
+
 \section{Example: Experts Advice}\label{sec:experts}
 The problem of learning from experts' advice has a long history in online learning community. There are known online algorithms that obtain optimal regret bounds. In this section, we explore the problem, the RFTL approach to this problem, and show how the result from this chapter can be applied.
 
@@ -216,4 +218,4 @@ known as the \emph{negative entropy} regulariser. Note that this regulariser is 
     \Rcal(T) \leq 2D_\phi L \sqrt{2T} = 2L\sqrt{2\log n\cdot T}.
 \]
 Thus, we can get a consistent RFTL for this problem, getting constants which are not dependent on $n$. This result, however, is sub-optimal, as compared to \citet{altschuler2018online}.
-Another proof, specialised for this problem, to get such bounds is provided in Appendix~\ref{app:experts}.
+Another proof for bounds on decision path length, is provided in Appendix~\ref{app:experts}.
